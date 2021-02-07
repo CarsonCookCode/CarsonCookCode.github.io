@@ -54,7 +54,7 @@ document.body.style.background = "#666699";
 oneToTen = (Math.floor(Math.random()*10000));
 beginTime = '0'
 
-
+document.getElementById('Reset').style.color = 'gray';
 
 
 
