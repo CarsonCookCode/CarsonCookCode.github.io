@@ -50,7 +50,7 @@ var beginTime;
 
 
 
-document.body.style.background = "#666699";
+document.body.style.background = "turquoise";
 oneToTen = (Math.floor(Math.random()*10000));
 beginTime = '0'
 
@@ -126,7 +126,7 @@ function decider() {
   document.getElementById('push').innerHTML = 'FAILURE'
   q = false;
 } else if (z) {
-  document.body.style.background = "gold";
+  document.body.style.background = "pink";
   var end = Date.now();
   var finalScore = (end - beginTime);
   console.log(finalScore);
@@ -147,8 +147,8 @@ var reset = function() {
   last = false;
   oneToTen = (Math.floor(Math.random()*10000));
   beginTime = '0'
-  document.body.style.background = "#666699";
-  document.getElementById('push').innerHTML = 'Ready'
+  document.body.style.background = "turquose";
+  document.getElementById('push').innerHTML = 'RACHEL IS POO'
   ready();
 
 }
