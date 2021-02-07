@@ -1,0 +1,18 @@
+.button {
+  background-color: Black; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text: 'Hello';
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 50px;
+}
+.center {
+  margin: auto;
+  width: 16%;
+  height: 10%
+  border: none;
+  padding: 200px;
+}
