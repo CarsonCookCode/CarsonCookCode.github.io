@@ -147,7 +147,7 @@ var reset = function() {
   last = false;
   oneToTen = (Math.floor(Math.random()*10000));
   beginTime = '0'
-  document.body.style.background = "turquose";
+  document.body.style.background = "turquoise";
   document.getElementById('push').innerHTML = 'RACHEL IS POO'
   ready();
 
