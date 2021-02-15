@@ -1,0 +1,197 @@
+
+.d1{background:#6666ff; padding-top: 5px;}
+.d2{background:#999999; padding-top: 5px;}
+.d3{background:#6666ff; padding-top: 5px;}
+.d4{background:#999999; padding-top: 4px; font-family: serif; color:black }
+.d5{background:#999999; padding-top: 4px; font-family: serif; color:black }
+.d6{background:#999999; padding-top: 5px;}
+.d7{background:#6666ff; padding-top: 5px;}
+.d8{background:#999999; padding-top: 5px;}
+.d9{background:#999999; padding-top: 5px;}
+.d10{background:#6666ff; padding-top: 5px;}
+.d11{background:#999999; padding-top: 5px;}
+.d12{background:#6666ff; padding-top: 5px;}
+.d13{background:#6666ff; padding-top: 5px;}
+.d14{background:#6666ff; padding-top: 5px;}
+.d15{background:#999999; padding-top: 5px;}
+.d16{background:#6666ff; padding-top: 5px;}
+.d17{background:#6666ff; padding-top: 5px;}
+.d18{background:#999999;}
+.d19{background:#6666ff; padding-top: 5px;}
+.d20{background:#999999; padding-top: 5px;}
+.d21{background:#6666ff; padding-top: 5px;}
+.d22{background:#999999; padding-top: 5px;}
+.d23{background:#6666ff; padding-top: 5px;}
+.d24{background:#999999; padding-top: 5px;}
+.d25{background:#999999; padding-top: 5px;}
+.d26{background:#6666ff;}
+.d27{background:#999999; padding-top: 5px;}
+.d28{background:#6666ff; padding-top: 5px;}
+.d29{background:#999999; padding-top: 5px;}
+.d30{background:#6666ff; padding-top: 5px;}
+.d31{background:#999999; padding-top: 5px;}
+.d32{background:#6666ff; padding-top: 5px;}
+.d33{background:#6666ff; padding-top: 5px;}
+.d34{background:#999999; padding-top: 5px;}
+.d35{background:#6666ff; padding-top: 5px;}
+.d36{background:#999999; padding-top: 5px;}
+.d37{background:#6666ff; padding-top: 5px;}
+.d38{background:#999999; padding-top: 5px;}
+.d39{background:#6666ff; padding-top: 5px;}
+.d40{background:#999999; padding-top: 5px;}
+.d41{background:#999999; padding-top: 5px;}
+.d42{background:#6666ff;}
+.d43{background:#999999; padding-top: 5px;}
+.d44{background:#6666ff; padding-top: 5px;}
+.d45{background:#999999; padding-top: 5px;}
+.d46{background:#6666ff; padding-top: 5px;}
+.d47{background:#999999; padding-top: 5px;}
+.d48{background:#6666ff; padding-top: 5px;}
+.d49{background:#6666ff; padding-top: 5px;}
+.d50{background:#999999; padding-top: 5px;}
+.d51{background:#6666ff; padding-top: 5px;}
+.d52{background:#999999; padding-top: 5px;}
+.d53{background:#6666ff; padding-top: 5px;}
+.d54{background:#999999; padding-top: 5px;}
+.d55{background:#6666ff; padding-top: 5px;}
+.d56{background: #999999; padding-top: 5px;}
+
+.goldImage {
+  width: 50px;
+  padding-top: 5px;
+
+}
+
+.citizenImage {
+  width: 50px;
+
+}
+
+.cultureImage {
+  width: 50px;
+
+}
+
+.researchImage {
+  width: 50px;
+
+}
+
+.farmResource {
+  color: #00ff00;
+}
+
+.merchantResource {
+  color: yellow;
+}
+
+.artistResource {
+  color: #d633ff;
+}
+
+.scholarResource {
+  color: #3385ff;
+}
+#farm {
+  background-color: green;
+  color: white;
+}
+
+#merchant {
+  background-color: #b8860b;
+  color: white;
+}
+
+#artist {
+  background-color: purple;
+  color: white;
+}
+
+#scholar {
+  background-color: blue;
+  color: white;
+}
+
+.resourceBar {
+  background-color: #505050;
+  position: absolute; left: 0px; right: 0px; top: 0px;
+  height: 25px;
+  padding-top: 2px;
+  padding-bottom: 5px;
+}
+
+.resourceBar2 {
+  background-color: gray;
+  position: absolute; left: 0px; right: 0px; top: 25px;
+  height: 20px;
+  padding-bottom: 15px;
+}
+
+
+
+
+hr {
+  margin-top: 13px;
+  border-top: 3px solid #484848;
+  border-bottom: 1px solid #6666ff;
+}
+button {
+  font-family: serif;
+  background-color: #9494b8;
+  margin-left: 4em
+  color: black;
+  border: 2px solid black;
+  width: 100px;
+  border-radius: 6px;
+}
+
+button:hover {
+  font-family: serif;
+  background-color: #9494b8;
+  color: cyan;
+  border: 2px solid black;
+  cursor: pointer;
+}
+
+button:active {
+    background-color: #5c5c8a;
+  #2d5986;
+}
+
+.building {
+  background-color: tan;
+}
+
+.building:hover {
+  background-color: tan;
+  color: white;
+}
+
+.container1 {
+
+  position:absolute; left:10px; top:535px;
+  text-align: center;
+  margin: auto;
+  border: 3px solid black;
+  width: 60%;
+  height: 200px;
+  background: ;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.indicator {
+  text-align: center;
+  position: absolute; left: 450px; top: 2px;
+  background-color: #d9d9d9;
+  padding: 2px 2px 2px 2px;
+  border: 4px solid black;
+  width: 100px;
+}
+
+body {
+  background: url(
+https://cdn-media-1.freecodecamp.org/imgr/MJAkxbh.png
+)
+}

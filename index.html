@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Builder Tech</title>
+  <link href='style.css' rel='stylesheet'>
+
+
+
+</head>
+<body>
+  <div class='resourceBar'>
+
+    &nbsp;<button id='farm' onclick='buildFarm()'>-3-&nbsp;&nbsp;&nbsp;Farms: 1</button>
+   <button id='merchant' onclick='hireMerch()'>Merchants: 0</button>
+   <button id='artist' onclick='hireArtist()'>Artists: 0</button>
+   <button id='scholar' onclick='hireScholar()'>Scholars: 0</button></div>
+
+  <div class='resourceBar2'>&nbsp;&nbsp;&nbsp; <img class='citizenImage' src='images/citizen.png'><span id='citizenResource'></span>
+&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img class='goldImage' src='images/gold.png'><span id='goldResource'></span>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img class='cultureImage' src='images/culture.png'>
+  <span id='cultureResource'></span>&nbsp;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img class='researchImage' src='images/research.png'><span id='researchResource'></span>
+<div class='indicator' id='indicator'>Turn: 1</div>
+</div>
+<br><br><br><br>
+    <button class='building' id='granary' onclick='buildGranary()' title='10 citizens - 30 Gold'>Granary</button>
+    <button class='building' id='market' onclick='buildMarket()' title='10 citizens - 30 Gold'>Market</button>
+    <button class='building' id='shrine' onclick='buildShrine()' title='10 citizens - 30 Gold'>Shrine</button>
+    <button class='building' id='library' onclick='buildLibrary()' title='10 citizens - 30 Gold'>Library</button>
+    <br><br>
+    <button class='building' id='field' onclick='buildField()' title='50 citizens - 200 Gold'>Field</button>
+    <button class='building' id='harbor' onclick='buildHarbor()' title='50 citizens - 200 Gold'>Harbor</button>
+    <button class='building' id='temple' onclick='buildTemple()' title='50 citizens - 200 Gold'>Temple</button>
+    <button class='building' id='university' onclick='buildUniversity()' title='50 citizens - 200 Gold'>University</button>
+    <br><br>
+      <button class='building' id='aqueduct' onclick='buildAqueduct()' title='200 Citizens - 1000 Gold'>Aqueduct</button>
+    <button class='building' id='treasury' onclick='buildTreasury()' title='200 Citizens - 1000 Gold'>Treasury</button>
+    <button class='building' id='cathedral' onclick='buildCathedral()' title='200 Citizens - 1000 Gold'>Cathedral</button>
+    <button class='building' id='laboratory' onclick='buildLaboratory()' title='200 Citizens - 1000 Gold'>Laboratory</button>
+    <br><br>
+    <button style='background-color: white; color: black; border: 2px solid black;' id='endTurn' onclick='endTurn()'>End Turn</button>
+    <div id='message'>Begin.</div>
+
+<div class="container1">
+<div class="d1"></div>
+<div class="d2"></div>
+<div class="d3"><button id='bloodSacrificeTech' onclick='clickBloodSacrifice()' title='22 Research - Requires: Granary'>Blood Sacrifice</button></div>
+<div class="d4">Researching:</div>
+<div id='techTree1' class="d5"></div>
+<div id='techTree2' class="d6"></div>
+<div class="d7"></div>
+<div class="d8"></div>
+<div class="d9"></div>
+<div class="d10"><button id='granaryTech' onclick='clickGranary()' title='14 Research - Requires: Market'>Granary</button></div>
+<div class="d11"><button id='shrineTech' onclick='clickShrine()' title='20 Research - Requires: Granary'>Shrine</button></div>
+<div class="d12"></div>
+<div class="d13"><button id='religionTech' onclick='clickReligion()' title='40 Research - Requires: Temple'>Religion</button></div>
+<div class="d14"><button id='priestTech' onclick='clickPriest()' title='80 Research - Requires: Temple'>Priest</button></div>
+<div class="d15"><button id='aqueductTech' onclick='clickAqueduct()' title='160 Research - Requires: Free Trade'>Aqueduct</button></div>
+<div class="d16"></div>
+<div class="d17"><button id='marketTech' onclick='clickMarket()' title='10 Research'>Market</button></div>
+<div class="d18"><hr></div>
+<div class="d19"><button id='ritualTech' onclick='clickRitual()' title='20 Research - Requires: Market'>Ritual</button></div>
+<div class="d20"><button id='universityTech' onclick='clickUniversity()' title='40 Research - Requires: Ritual'>University</button></div>
+<div class="d21"><button id='templeTech' onclick='clickTemple()' title='42 Research - Requires: University'>Temple</button></div>
+<div class="d22"><button id='freeTradeTech' onclick='clickFreeTrade()' title='120 Research - Requires: Temple, Conquerer'>Free Trade</button></div>
+<div class="d23"><button id='cathedralTech' onclick='clickCathedral()' title='200 Research - Requires: Free Trade'>Cathedral</button></div>
+<div class="d24"><button id='abstractArtTech' onclick='clickAbstractArt()' title='400 Research - Requires: Cathedral'>Abstract Art</button></div>
+<div class="d25"><button id='footmanTech' onclick='clickFootman()' title='8 Research'>Footman</button></div>
+<div class="d26"><hr></div>
+<div class="d27"><button id='knightTech' onclick='clickKnight()' title='24 Research - Requires: Footman'>Knight</button></div>
+<div class="d28"><button id='classicalArtTech' onclick='clickClassicalArt()' title='50 Research - Requires: Ritual, Knight, Archer'>Classical Art</button></div>
+<div class="d29"><button id='conquererTech' onclick='clickConquerer()' title='60 Research - Requires: Classical Art'>Conquerer</button></div>
+<div class="d30"></div>
+<div class="d31"><button id='treasuryTech' onclick='clickTreasury()' title='210 Research - Requires: Free Trade'>Treasury</button></div>
+<div class="d32"><button id='infiltratorTech' onclick='clickInfiltrator()' title='400 Research - Requires: Treasury'>Infiltrator</button></div>
+<div class="d33"></div>
+<div class="d34"><button id='bruteTech' onclick='clickBrute()' title='14 Research - Requires: Footman'>Brute</button></div>
+<div class="d35"></div>
+<div class="d36"><button id='chantsTech' onclick='clickChants()' title='24 Research - Requires: Knight'>Chants</button></div>
+<div class="d37"></div>
+<div class="d38"><button id='generalTech' onclick='clickGeneral()' title='110 Research - Requires: Catapult'>General</button></div>
+<div class="d39"><button id='goliathTech' onclick='clickGoliath()' title='250 Research - Requires: Free Trade, General'>Goliath</button></div>
+<div class="d40"><button id='berzerkerTech' onclick='clickBerzerker()' title='400 Research - Requires: Goliath'>Berzerker</button></div>
+<div class="d41"><button id='libraryTech' onclick='clickLibrary()' title='12 Research'>Library</button></div>
+<div class="d42"><hr></div>
+<div class="d43"><button id='archerTech' onclick='clickArcher()' title='20 Research - Requires: Library'>Archer</button></div>
+<div class="d44"><button id='harborTech' onclick='clickHarbor()' title='32 Research - Requires: Archer'>Harbor</button></div>
+<div class="d45"><button id='catapultTech' onclick='clickCatapult()' title='60 Research - Requires: Harbor'>Catapult</button></div>
+<div class="d46"><button id='laboratoryTech' onclick='clickLaboratory()' title='130 Research - Requires: Law and Order'>Laboratory</button></div>
+<div class="d47"><button id='mageTech' onclick='clickMage()' title='300 Research - Requires: General, Laboratory'>Mage</button></div>
+<div class="d48"><button id='enlightenmentTech' onclick='clickEnlightenment()' title='400 Research - Requires: Mage'>Enlightenment</button></div>
+<div class="d49"></div>
+<div class="d50"><button id='rangerTech' onclick='clickRanger()' title='16 Research - Requires: Library'>Ranger</button></div>
+<div class="d51"></div>
+<div class="d52"></div>
+<div class="d53"><button id='lawAndOrderTech' onclick='clickLawAndOrder()' title='65 Research - Requires: Harbor'>Law and Order</button></div>
+<div class="d54"><button id='foodSiloTech' onclick='clickFoodSilo()' title='80 Research - Requires: Law and Order'>Food Silo</button></div>
+<div class="d55"></div>
+<div class="d56"></div>
+</div>
+
+
+  <script src='main.js'></script>
+</body>
+</html>
