@@ -1,0 +1,315 @@
+
+.d1 {
+  background:#6666ff;
+  padding-top: 2px;
+  border: 2px solid black;
+}
+.d2{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d3{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d4{border: 1px solid black;background:#6666ff; padding-top: 4px; font-family: serif; color:black }
+.d5{border: 1px solid black;background:#6666ff; padding-top: 4px; font-family: serif; color:black }
+.d6{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d7{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d8{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d9{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d10{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d11{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d12{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d13{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d14{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d15{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d16{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d17{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d18{border: 1px solid black;background:#6666ff;}
+.d19{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d20{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d21{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d22{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d23{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d24{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d25{border: 1px solid black; background:#6666ff; padding-top: 4px;}
+.d26{border: 1px solid black;background:#6666ff;}
+.d27{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d28{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d29{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d30{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d31{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d32{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d33{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d34{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d35{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d36{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d37{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d38{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d39{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d40{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d41{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d42{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d43{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d44{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d45{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d46{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d47{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d48{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d49{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d50{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d51{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d52{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d53{border: 1px solid black; padding-top: 4px;}
+.d54{border: 1px solid black;background:#6666ff; padding-top: 4px;}
+.d55{border: 1px solid black; background:#6666ff; padding-top: 4px;}
+.d56{border: 1px solid black; background: #6666ff; padding-top: 4px;}
+
+
+#message {
+  position: absolute; left: 850px; top: 50px;
+}
+
+.endTurn {
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+  position: absolute; left: 698px; top: 45px;
+}
+
+.endTurn:hover {
+  background-color: white;
+  color: red !important;
+}
+
+.endTurn:active {
+  background-color: #c0c0c0;
+}
+
+.goldImage {
+  width: 50px;
+  position: absolute; left: 130px; top: 46px;
+
+
+}
+
+.citizenImage {
+  position: absolute; left: 0px; top: 45px;
+  width: 50px;
+
+}
+
+.citizenResource {
+  text-align: center;
+  position: absolute; left: 45vw; top: 50px;
+  background-color: #d9d9d9;
+  padding: 2px 2px 2px 2px;
+  border: 4px solid black;
+  width: 100px;
+}
+
+
+.cultureImage {
+  width: 50px;
+  position: absolute; left: 260px; top: 45px;
+}
+
+.researchImage {
+  width: 50px;
+  position: absolute; left: 400px; top: 45px;
+}
+
+.farmResource {
+  color: #00ff00;
+}
+
+.merchantResource {
+  color: yellow;
+}
+
+.artistResource {
+  color: #d633ff;
+}
+
+.scholarResource {
+  color: #3385ff;
+}
+#farm {
+  background-color: green;
+  color: white;
+}
+
+#merchant {
+  background-color: #b8860b;
+  color: white;
+}
+
+#artist {
+  background-color: purple;
+  color: white;
+}
+
+#scholar {
+  background-color: blue;
+  color: white;
+}
+
+.resourceBar {
+  background-color: #505050;
+  position: absolute; left: 0px; right: 0px; top: 0px;
+  height: 40px;
+  padding-top: 2px;
+  padding-bottom: 5px;
+}
+
+.resourceBar2 {
+  background-color: gray;
+  position: absolute; left: 0px; right: 0px; top: 40px;
+  height: 20px;
+  padding-bottom: 15px;
+}
+
+.bigResource {
+  font-size: 16px;
+  width: 130px;
+  height: 30px;
+}
+
+.bigResource:active {
+  font-size: 16px;
+  width: 130px;
+  height: 30px;
+  background-color: gray !important;
+}
+
+
+hr {
+  margin-top: 13px;
+  border-top: 3px solid #484848;
+  border-bottom: 1px solid #6666ff;
+}
+button {
+  font-family: serif;
+  background-color: #9494b8;
+  margin-left: 4em
+  color: black;
+  border: 2px solid black;
+  width: 100px;
+  border-radius: 6px;
+}
+
+button:hover {
+  font-family: serif;
+  background-color: #9494b8;
+  color: black !important;
+  border: 2px solid black;
+  cursor: pointer;
+}
+
+button:active {
+    background-color: #5c5c8a;
+  #2d5986;
+}
+
+.building {
+  background-color: tan;
+}
+
+.building:hover {
+  background-color: tan;
+  color: white;
+}
+
+.building:active {
+  background-color: #ba8759;
+}
+
+.container1 {
+  background-color: #6666ff;
+  position:absolute; left:10px; top:535px;
+  text-align: center;
+  margin: auto;
+  border: 3px solid black;
+  width: 60%;
+  height: 200px;
+  background: ;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.container2 {
+  position:absolute; left: 10px; top: 400px;
+  background-color: #505050;
+  border: 3px solid black;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+}
+
+.container2Heading {
+  text-align: center;
+  color: white;
+  padding: 2px 2px 2px 2px;
+}
+
+.indicator {
+  text-align: center;
+  position: absolute; left: 45vw; top: 2px;
+  background-color: #d9d9d9;
+  padding: 2px 2px 2px 2px;
+  border: 4px solid black;
+  width: 100px;
+}
+
+.indicator2 {
+  text-align: center;
+  position: absolute; left: 45px; top: 50px;
+}
+
+.indicator3 {
+  text-align: center;
+  position: absolute; left: 178px; top: 50px;
+}
+.indicator4 {
+  text-align: center;
+  position: absolute; left: 310px; top: 50px;
+}
+.indicator5 {
+  text-align: center;
+  position: absolute; left: 450px; top: 50px;
+}
+
+body {
+  background-image: url('images/halftone.png')
+}
+
+
+
+.mult1 {
+  width: 30px;
+  position: absolute; left: 550px; top: 8px;
+  color: white;
+
+}
+.mult1:active {
+  color: white;
+  background-color: white;
+}
+
+.mult10 {
+  width: 30px;
+  position: absolute; left: 585px; top: 8px;
+  color: cyan;
+}
+.mult10:active {
+  color: cyan;
+  background-color: cyan;
+}
+
+.mult100 {
+  width: 40px;
+  position: absolute; left: 620px; top: 8px;
+  color: red;
+}
+.mult100:active {
+  color: red;
+  background-color: red;
+}
+
+/*
+//https://cdn-media-1.freecodecamp.org/imgr/MJAkxbh.png
