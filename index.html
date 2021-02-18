@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Farm Game</title>
+  <link href='style.css' rel='stylesheet'>
+
+
+</head>
+<body>
+
+  <div class='resourceBar'>
+
+    &nbsp;<button class='bigResource' id='farm' onclick='buildFarm()'>-3-&nbsp;&nbsp;&nbsp;Farms: 1</button>
+   <button class='bigResource' id='merchant' onclick='hireMerch()'>Merchants: 0</button>
+   <button class='bigResource' id='artist' onclick='hireArtist()'>Artists: 0</button>
+   <button class='bigResource' id='scholar' onclick='hireScholar()'>Scholars: 0</button></div>
+
+
+   <button class='mult1' id='mult1' onclick='mult1()'>x1</button>
+   <button class='mult10' id='mult10' onclick='mult10()'>x10</button>
+   <button class='mult100' id='mult100' onclick='mult100()'>x100</button>
+
+
+
+<div class='resourceBar2'>
+</div>
+<img class='citizenImage' src='images/citizen.png'>
+
+
+<img class='goldImage' src='images/gold.png'>
+
+
+<img class='cultureImage' src='images/culture.png'>
+
+<img class='researchImage' src='images/research.png'>
+
+
+
+
+
+<div class='indicator' id='indicator'>Turn: 1</div>
+
+<div class='indicator2' id='citizenResource'></div>
+<div class='indicator3' id='goldResource'></div>
+<div class='indicator4' id='cultureResource'></div>
+<div class='indicator5' id='researchResource'></div>
+
+<img onclick='endTurn()' class='pyramid' id='pyramid' src='images/pyramid.png'>
+
+<img class='victory-point' src='images/victory-point.png'>
+<div id='victory-points' class='victory-points'>= 0</div>
+
+
+<audio id='bs'>
+  <source src='sounds/building-sound.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='err'>
+  <source src='sounds/error-sound2.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='click'>
+  <source src='sounds/light-click.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='wonderSound'>
+  <source src='sounds/3-taps.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='low-tone'>
+  <source src='sounds/low-tone.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='multiple-clicks'>
+  <source src='sounds/multiple-clicks.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+
+
+<div class='wonderContainer' id='wonderContainer'>
+
+<div class='wonderHeading'>Wonders:</div>
+
+<button title='50 culture  +1VP' class='wonder' id='bloodSacrifice' onclick='bloodSacrificeWonder()'>Blood Sacrifice</button>
+<button title='50 culture  +1VP' class='wonder' id='ritual' onclick='ritualWonder()'>Ritual</button>
+<button title='50 culture  +1VP' class='wonder' id='chants' onclick='chantsWonder()'>Chants</button>
+<button title='200 culture  +2VP' class='wonder' id='religion' onclick='religionWonder()'>Religion</button>
+<button title='200 culture  +2VP' class='wonder' id='classicalArt' onclick='classicalArtWonder()'>Classical Art</button>
+<button title='200 culture  +2VP' class='wonder' id='lawAndOrder' onclick='lawAndOrderWonder()'>Law and Order</button>
+<button title='500 culture  +3VP' class='wonder' id='freeTrade' onclick='freeTradeWonder()'>Free Trade</button>
+<button title='500 culture  +3VP' class='wonder' id='abstractArt' onclick='abstractArtWonder()'>Abstract Art</button>
+<button title='500 culture  +3VP' class='wonder' id='enlightenment' onclick='enlightenmentWonder()'>Enlightenment</button>
+
+
+</div>
+
+
+<!--
+<button onclick='insertImage()' style='position: absolute; left:500px; top:300px;'>create image</button>
+<button onclick='insertImage2()' style='position: absolute; left:500px; top:250px;'>create image2</button>
+
+<img class='wonder' id='blood-sacrifice 'src='images/blood-sacrifice.png'>
+<img class='wonder' id='ritual' src='images/ritual.png'>
+<img class='wonder' id='chants' src='images/chants.png'>
+
+-->
+
+<br><br><br><br>
+<div class='container2'>
+    <div class='container2Heading'>Buildings:</div>
+
+    <button style='color: green' class='building' id='granary' onclick='buildGranary()' title='10 citizens - 30 Gold'>Granary</button>
+    <button style='color: yellow' class='building' id='market' onclick='buildMarket()' title='10 citizens - 30 Gold'>Market</button>
+    <button style='color: purple' class='building' id='shrine' onclick='buildShrine()' title='10 citizens - 30 Gold'>Shrine</button>
+    <button style='color: blue' class='building' id='library' onclick='buildLibrary()' title='10 citizens - 30 Gold'>Library</button>
+    <br><br>
+    <button style='color: green' class='building' id='field' onclick='buildField()' title='50 citizens - 200 Gold'>Food Silo</button>
+    <button style='color: yellow' class='building' id='harbor' onclick='buildHarbor()' title='50 citizens - 200 Gold'>Harbor</button>
+    <button style='color: purple'class='building' id='temple' onclick='buildTemple()' title='50 citizens - 200 Gold'>Temple</button>
+    <button style='color: blue' class='building' id='university' onclick='buildUniversity()' title='50 citizens - 200 Gold'>University</button>
+    <br><br>
+      <button style='color: green' class='building' id='aqueduct' onclick='buildAqueduct()' title='200 Citizens - 1000 Gold'>Aqueduct</button>
+    <button style='color: yellow' class='building' id='treasury' onclick='buildTreasury()' title='200 Citizens - 1000 Gold'>Treasury</button>
+    <button style='color: purple'class='building' id='cathedral' onclick='buildCathedral()' title='200 Citizens - 1000 Gold'>Cathedral</button>
+    <button style='color: blue' class='building' id='laboratory' onclick='buildLaboratory()' title='200 Citizens - 1000 Gold'>Laboratory</button>
+</div>
+    <br><br>
+    <button class='endTurn' id='endTurn' onclick='endTurn()'>End Turn</button>
+    <br><br>
+    <div id='message'>Begin.</div>
+
+<div class="container1">
+<div style='border: 1px solid black;'  class="d1">Tech Tree</div>
+<div class="d2"></div>
+<div class="d3"><button style='color: #f2f2f2' id='bloodSacrificeTech' onclick='clickBloodSacrifice()' title='22 Research - Requires: Granary'>Blood Sacrifice</button></div>
+<div class="d4">Researching:</div>
+<div id='techTree1' class="d5"></div>
+<div id='techTree2' class="d6"></div>
+<div class="d7"></div>
+<div class="d8"></div>
+<div class="d9"></div>
+<div class="d10"><button style='color: green' id='granaryTech' onclick='clickGranary()' title='14 Research - Requires: Market'>Granary</button></div>
+<div class="d11"><button style='color: purple' id='shrineTech' onclick='clickShrine()' title='20 Research - Requires: Granary'>Shrine</button></div>
+<div class="d12"></div>
+<div class="d13"><button style='color: #f2f2f2' id='religionTech' onclick='clickReligion()' title='40 Research - Requires: Temple'>Religion</button></div>
+<div class="d14"><button style='color: pink' id='priestTech' onclick='clickPriest()' title='80 Research - Requires: Temple'>Priest</button></div>
+<div class="d15"><button style='color: green' id='aqueductTech' onclick='clickAqueduct()' title='160 Research - Requires: Free Trade'>Aqueduct</button></div>
+<div class="d16"></div>
+<div class="d17"><button style='color: yellow' id='marketTech' onclick='clickMarket()' title='10 Research'>Market</button></div>
+<div class="d18"><hr></div>
+<div class="d19"><button style='color: #f2f2f2' id='ritualTech' onclick='clickRitual()' title='20 Research - Requires: Market'>Ritual</button></div>
+<div class="d20"><button style='color: blue' id='universityTech' onclick='clickUniversity()' title='40 Research - Requires: Ritual'>University</button></div>
+<div class="d21"><button style='color: purple' id='templeTech' onclick='clickTemple()' title='42 Research - Requires: University'>Temple</button></div>
+<div class="d22"><button style='color: #f2f2f2' id='freeTradeTech' onclick='clickFreeTrade()' title='120 Research - Requires: Temple, Conquerer'>Free Trade</button></div>
+<div class="d23"><button style='color: purple' id='cathedralTech' onclick='clickCathedral()' title='200 Research - Requires: Free Trade'>Cathedral</button></div>
+<div class="d24"><button style='color: #f2f2f2' id='abstractArtTech' onclick='clickAbstractArt()' title='400 Research - Requires: Cathedral'>Abstract Art</button></div>
+<div class="d25"><button style='color: #cc0000' id='footmanTech' onclick='clickFootman()' title='8 Research'>Footman</button></div>
+<div class="d26"><hr></div>
+<div class="d27"><button style='color: #cc0000' id='knightTech' onclick='clickKnight()' title='24 Research - Requires: Footman'>Knight</button></div>
+<div class="d28"><button style='color: #f2f2f2' id='classicalArtTech' onclick='clickClassicalArt()' title='50 Research - Requires: Ritual, Knight, Archer'>Classical Art</button></div>
+<div class="d29"><button style='color: #cc0000' id='conquererTech' onclick='clickConquerer()' title='60 Research - Requires: Classical Art'>Conquerer</button></div>
+<div class="d30"></div>
+<div class="d31"><button style='color: yellow' id='treasuryTech' onclick='clickTreasury()' title='210 Research - Requires: Free Trade'>Treasury</button></div>
+<div class="d32"><button style='color: #cc0000' id='infiltratorTech' onclick='clickInfiltrator()' title='400 Research - Requires: Treasury'>Infiltrator</button></div>
+<div class="d33"></div>
+<div class="d34"><button style='color: #cc0000' id='bruteTech' onclick='clickBrute()' title='14 Research - Requires: Footman'>Brute</button></div>
+<div class="d35"></div>
+<div class="d36"><button style='color: #f2f2f2' id='chantsTech' onclick='clickChants()' title='24 Research - Requires: Knight'>Chants</button></div>
+<div class="d37"></div>
+<div class="d38"><button style='color: pink' id='generalTech' onclick='clickGeneral()' title='110 Research - Requires: Catapult'>General</button></div>
+<div class="d39"><button style='color: #cc0000' id='goliathTech' onclick='clickGoliath()' title='250 Research - Requires: Free Trade, General'>Goliath</button></div>
+<div class="d40"><button style='color: pink' id='berzerkerTech' onclick='clickBerzerker()' title='400 Research - Requires: Goliath'>Berzerker</button></div>
+<div class="d41"><button style='color: blue' id='libraryTech' onclick='clickLibrary()' title='12 Research'>Library</button></div>
+<div class="d42"><hr></div>
+<div class="d43"><button style='color: #cc0000' id='archerTech' onclick='clickArcher()' title='20 Research - Requires: Library'>Archer</button></div>
+<div class="d44"><button style='color: yellow' id='harborTech' onclick='clickHarbor()' title='32 Research - Requires: Archer'>Harbor</button></div>
+<div class="d45"><button style='color: #cc0000' id='catapultTech' onclick='clickCatapult()' title='60 Research - Requires: Harbor'>Catapult</button></div>
+<div class="d46"><button style='color: blue' id='laboratoryTech' onclick='clickLaboratory()' title='130 Research - Requires: Law and Order'>Laboratory</button></div>
+<div class="d47"><button style='color: #cc0000' id='mageTech' onclick='clickMage()' title='300 Research - Requires: General, Laboratory'>Mage</button></div>
+<div class="d48"><button style='color: #f2f2f2' id='enlightenmentTech' onclick='clickEnlightenment()' title='400 Research - Requires: Mage'>Enlightenment</button></div>
+<div class="d49"></div>
+<div class="d50"><button style='color: #cc0000' id='rangerTech' onclick='clickRanger()' title='16 Research - Requires: Library'>Ranger</button></div>
+<div class="d51"></div>
+<div class="d52"></div>
+<div class="d53"><button style='color: #f2f2f2' id='lawAndOrderTech' onclick='clickLawAndOrder()' title='65 Research - Requires: Harbor'>Law and Order</button></div>
+<div class="d54"><button style='color: green' id='foodSiloTech' onclick='clickFoodSilo()' title='80 Research - Requires: Law and Order'>Food Silo</button></div>
+<div class="d55"></div>
+<div class="d56"></div>
+</div>
+
+
+<script src='main.js'></script>
+
+</body>
+</html>
