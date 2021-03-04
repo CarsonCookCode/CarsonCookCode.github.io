@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Farm Game</title>
+  <link href='style.css' rel='stylesheet'>
+
+
+</head>
+<body>
+
+  <img id='lakePic' src='images/lake.png' style='width:250px; position:absolute; top:50px; left:600px; z-value:6;'>
+
+
+
+  <div class='resourceBar'>
+
+    &nbsp;<button class='bigResource' id='farm' onclick='buildFarm()'>-3-&nbsp;&nbsp;&nbsp;Farms: 1</button>
+   <button class='bigResource' id='merchant' onclick='hireMerch()'>Merchants: 0</button>
+   <button class='bigResource' id='artist' onclick='hireArtist()'>Artists: 0</button>
+   <button class='bigResource' id='scholar' onclick='hireScholar()'>Scholars: 0</button></div>
+
+
+   <button class='mult1' id='mult1' onclick='mult1()'>x1</button>
+   <button class='mult10' id='mult10' onclick='mult10()'>x10</button>
+   <button class='mult100' id='mult100' onclick='mult100()'>x100</button>
+
+
+
+<div class='resourceBar2'>
+</div>
+<img class='citizenImage' src='images/citizen.png'>
+
+
+<img class='goldImage' src='images/gold.png'>
+
+
+<img class='cultureImage' src='images/culture.png'>
+
+<img class='researchImage' src='images/research.png'>
+
+
+
+<button style='position:absolute; left:1000px; top:10px;' id='redTeam' class='teamStyle' onclick='red()'>Red Team</button>
+<button style='position:absolute; left:1100px; top:10px;' id='blueTeam' class='teamStyle' onclick='blue()'>Blue Team</button>
+<button style='position:absolute; left:1200px; top:10px;' id='greenTeam' class='teamStyle' onclick='green()'>Green Team</button>
+<button style='position:absolute; left:1300px; top:10px;' id='yellowTeam' class='teamStyle' onclick='yellow()'>Yellow Team</button>
+
+
+
+
+
+
+<div class='indicator' id='indicator'>Turn: 1</div>
+
+<div class='indicator2' id='citizenResource'></div>
+<div class='indicator3' id='goldResource'></div>
+<div class='indicator4' id='cultureResource'></div>
+<div class='indicator5' id='researchResource'></div>
+
+<img onclick='endTurn()' class='pyramid' id='pyramid' src='images/pyramid.png'>
+
+<img class='victory-point' src='images/victory-point.png'>
+<div id='victory-points' class='victory-points'>= 0</div>
+
+
+<audio id='bs'>
+  <source src='sounds/building-sound.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='err'>
+  <source src='sounds/error-sound2.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='click'>
+  <source src='sounds/light-click.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='wonderSound'>
+  <source src='sounds/3-taps.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='low-tone'>
+  <source src='sounds/low-tone.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+<audio id='multiple-clicks'>
+  <source src='sounds/multiple-clicks.mp3' type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+
+
+<div id='unitContainer'>
+
+<div style='position: relative; left: 40px;'>Units:</div>
+<div></div>
+<button id='peon' style='color:  green' class='unit' onclick='peon()' title='Cost: 1 citizen - Stats: 20 hp 1 dmg'>
+<span><strong>Peon</strong> <br> <u>Cost: 1 citizen - Stats: 20 hp 1 dmg</u> <br> The Peon can be placed adjacent to any side of the board. </span>Peon</button>
+<button id='warrior' class='unit' onclick='warrior()' title='Cost: 1 citizen 3 gold - Stats: 40 hp 5 dmg'>Warrior</button>
+<button id='footman' class='unit' onclick='footman()' title='Cost: 3 citizens 10 gold - Stats: 50 hp 10 dmg'>Footman</button>
+<button id='brute' class='unit' onclick='shield()' title='Cost: 5 citizens 5 gold - Stats: 80 hp 5 dmg'>Brute</button>
+<button id='ranger' class='unit' onclick='ranger()' title='Cost: 3 citizens 12 gold - Stats: 15 hp 30 dmg'>Ranger</button>
+<button id='knight' class='unit' onclick='knight()' title='Cost: 3 citizens 15 gold - Stats: 60 hp 10 dmg'>Knight</button>
+<button id='archer' class='unit' onclick='archer()' title='Cost: 2 citizens 10 gold - Stats: 30 hp 5 dmg'>Archer</button>
+<button id='scout' class='unit' onclick='scout()' title='Cost: 6 citizens 10 gold - Stats: 20 hp 1 dmg'>Scout</button>
+<button id='conquerer' class='unit' onclick='conquerer()' title='Cost: 8 citizens 20 gold - Stats: 60 hp 12 dmg'>Conquerer</button>
+<button id='catapult' class='unit' onclick='catapult()' title='Cost: 5 citizens 30 gold - Stats: 30 hp 10 dmg'>Catapult</button>
+<button id='goliath' class='unit' onclick='goliath()' title='Cost: 10 citizens 30 gold - Stats: 80 hp 20 dmg'>Goliath</button>
+<button id='mage' class='unit' onclick='mage()' title='Cost: 5 citizens 50 gold - Stats: 50 hp 15 dmg'>Mage</button>
+<button id='infiltrator' class='unit' onclick='shiv()' title='Cost: 8 citizens 60 gold - Stats: 40 hp 20 dmg'>Infiltrator</button>
+<button id='priest' style='color:  #9900e6' class='unit' onclick='priest()' title='Cost: 10 citizens 30 gold - Stats: 30 hp 0 dmg'>Priest</button>
+<button id='general' style='color: #9900e6' class='unit' onclick='general()' title='Cost: 10 citizens 30 gold - Stats: 50 hp 0 dmg'>General</button>
+<button id='berzerker' style='color: #9900e6' class='unit' onclick='berzerker()' title='Cost: 10 citizens 50 gold - Stats: 50 hp 0 dmg'>Berzerker</button>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div class='wonderContainer' id='wonderContainer'>
+
+<div class='wonderHeading'>Wonders:</div>
+
+<button title='50 culture  +1VP' class='wonder' id='bloodSacrifice' onclick='bloodSacrificeWonder()'>Blood Sacrifice</button>
+<button title='50 culture  +1VP' class='wonder' id='ritual' onclick='ritualWonder()'>Ritual</button>
+<button title='50 culture  +1VP' class='wonder' id='chants' onclick='chantsWonder()'>Chants</button>
+<button title='200 culture  +2VP' class='wonder' id='religion' onclick='religionWonder()'>Religion</button>
+<button title='200 culture  +2VP' class='wonder' id='classicalArt' onclick='classicalArtWonder()'>Classical Art</button>
+<button title='200 culture  +2VP' class='wonder' id='lawAndOrder' onclick='lawAndOrderWonder()'>Law and Order</button>
+<button title='500 culture  +3VP' class='wonder' id='freeTrade' onclick='freeTradeWonder()'>Free Trade</button>
+<button title='500 culture  +3VP' class='wonder' id='abstractArt' onclick='abstractArtWonder()'>Abstract Art</button>
+<button title='500 culture  +3VP' class='wonder' id='enlightenment' onclick='enlightenmentWonder()'>Enlightenment</button>
+
+
+</div>
+
+<img class='build' id='housePic' src='images/house.png' style='width:80px; position:absolute; top:250px; left:350px; visibility: visible;'>
+<img class='build' id='granaryPic' src='images/granary.png' style='width:20px; position:absolute; top:100px;left:50px; visibility: hidden;'>
+<img class='build' id='siloPic' src='images/silo.png' style='width:50px; position:absolute; top:83px; left:10px; visibility: hidden;'>
+<img class='build' id='aqueductPic' src='images/aqueduct.png' style='width:400px; position:absolute; top:75px; left:0px; visibility: hidden;'>
+
+<img class='build' id='libraryPic' src='images/library.png' style='width:60px; position:absolute; top:300px; left:300px; visibility: hidden;'>
+<img class='build' id='universityPic' src='images/university.png' style='width:40px; position:absolute; top:400px; left:200px; visibility: hidden;'>
+<img class='build' id='laboratoryPic' src='images/laboratory.png' style='width:80px; position:absolute; top:300px; left:100px; visibility: hidden;'>
+
+<img class='build' id='merchantPic' src='images/merchant.png' style='width:20px; position:absolute; top:200px; left:500px; visibility: hidden;'>
+<img class='build' id='marketPic' src='images/market.png' style='width:80px; position:absolute; top:100px; left:500px; visibility: hidden;'>
+<img class='build' id='harborPic' src='images/harbor.png' style='width:80px; position:absolute; top:120px; left:745px; visibility: hidden;'>
+<img class='build' id='treasuryPic' src='images/treasury.png' style='width:80px; position:absolute; top:200px; left:700px; visibility: hidden;'>
+
+<img class='build' id='farmPic' src='images/farm2.png' style='width:50px; position:absolute; top:225px; left:250px; visibility: hidden;'>
+<img class='build' id='shrinePic' src='images/shrine.png' style='width:30px; position:absolute; top:300px; left:700px; visibility: hidden;'>
+<img class='build' id='templePic' src='images/temple.png' style='width:50px; position:absolute; top:400px; left:600px; visibility: hidden;'>
+<img class='build' id='cathedralPic' src='images/cathedral.png' style='width:50px; position:absolute; top:300px; left:500px; visibility: hidden;'>
+
+
+
+<br><br><br><br>
+<div class='container2'>
+    <div class='container2Heading'>Buildings:</div>
+
+    <button style='color: green' class='building' id='granary' onclick='buildGranary()' title='10 citizens - 30 Gold'>Granary</button>
+    <button style='color: yellow' class='building' id='market' onclick='buildMarket()' title='10 citizens - 30 Gold'>Market</button>
+    <button style='color: purple' class='building' id='shrine' onclick='buildShrine()' title='10 citizens - 30 Gold'>Shrine</button>
+    <button style='color: blue' class='building' id='library' onclick='buildLibrary()' title='10 citizens - 30 Gold'>Library</button>
+    <br>
+    <button style='color: green' class='building' id='field' onclick='buildField()' title='50 citizens - 200 Gold'>Food Silo</button>
+    <button style='color: yellow' class='building' id='harbor' onclick='buildHarbor()' title='50 citizens - 200 Gold'>Harbor</button>
+    <button style='color: purple'class='building' id='temple' onclick='buildTemple()' title='50 citizens - 200 Gold'>Temple</button>
+    <button style='color: blue' class='building' id='university' onclick='buildUniversity()' title='50 citizens - 200 Gold'>University</button>
+    <br>
+      <button style='color: green' class='building' id='aqueduct' onclick='buildAqueduct()' title='200 Citizens - 1000 Gold'>Aqueduct</button>
+    <button style='color: yellow' class='building' id='treasury' onclick='buildTreasury()' title='200 Citizens - 1000 Gold'>Treasury</button>
+    <button style='color: purple'class='building' id='cathedral' onclick='buildCathedral()' title='200 Citizens - 1000 Gold'>Cathedral</button>
+    <button style='color: blue' class='building' id='laboratory' onclick='buildLaboratory()' title='200 Citizens - 1000 Gold'>Laboratory</button>
+</div>
+    <br><br>
+    <button class='endTurn' id='endTurn' onclick='endTurn()'>End Turn</button>
+    <button id='question' onclick='question()'>Q</button>
+    <button class='test' id='test' onclick='test()'>Test Mode</button>
+    <br><br>
+    <div id='message'>Begin.</div>
+
+<div class="container1">
+<div style='color:white; font-size:15px;'  class="d1 tree">Tech Tree</div>
+<div class="d2 tree"></div>
+<div class="d3 tree"><button class='tech' style='color: #f2f2f2' id='bloodSacrificeTech' onclick='clickBloodSacrifice()' title='22 Research - Requires: Granary'>Blood Sacrifice</button></div>
+<div class="d4 tree" style='color:white; font-size:15px;' >Researching:</div>
+<div id='techTree1' style='color:white; font-size:15px;' class="d5 tree"></div>
+<div id='techTree2' style='color:white; font-size:15px;' class="d6 tree"></div>
+<div class="d7 tree"></div>
+<div class="d8 tree"></div>
+<div class="d9 tree"></div>
+<div class="d10 tree"><button class='tech' style='color: green' id='granaryTech' onclick='clickGranary()' title='14 Research - Requires: Market'>Granary</button></div>
+<div class="d11 tree"><button class='tech' style='color: purple' id='shrineTech' onclick='clickShrine()' title='20 Research - Requires: Granary'>Shrine</button></div>
+<div class="d12 tree"></div>
+<div class="d13 tree"><button class='tech' style='color: #f2f2f2' id='religionTech' onclick='clickReligion()' title='40 Research - Requires: Temple'>Religion</button></div>
+<div class="d14 tree"><button class='tech' style='color: #9900e6' id='priestTech' onclick='clickPriest()' title='80 Research - Requires: Temple'>Priest</button></div>
+<div class="d15 tree"><button class='tech' style='color: green' id='aqueductTech' onclick='clickAqueduct()' title='160 Research - Requires: Free Trade'>Aqueduct</button></div>
+<div class="d16 tree"></div>
+<div class="d17 tree"><button class='tech' style='color: yellow' id='marketTech' onclick='clickMarket()' title='10 Research'>Market</button></div>
+<div class="d18 tree"><hr></div>
+<div class="d19 tree"><button class='tech' style='color: #f2f2f2' id='ritualTech' onclick='clickRitual()' title='20 Research - Requires: Market'>Ritual</button></div>
+<div class="d20 tree"><button class='tech' style='color: blue' id='universityTech' onclick='clickUniversity()' title='40 Research - Requires: Ritual'>University</button></div>
+<div class="d21 tree"><button class='tech' style='color: purple' id='templeTech' onclick='clickTemple()' title='42 Research - Requires: University'>Temple</button></div>
+<div class="d22 tree"><button class='tech' style='color: #f2f2f2' id='freeTradeTech' onclick='clickFreeTrade()' title='120 Research - Requires: Temple, Conquerer'>Free Trade</button></div>
+<div class="d23 tree"><button class='tech' style='color: purple' id='cathedralTech' onclick='clickCathedral()' title='200 Research - Requires: Free Trade'>Cathedral</button></div>
+<div class="d24 tree"><button class='tech' style='color: #f2f2f2' id='abstractArtTech' onclick='clickAbstractArt()' title='400 Research - Requires: Cathedral'>Abstract Art</button></div>
+<div class="d25 tree"><button class='tech' style='color: #cc0000' id='footmanTech' onclick='clickFootman()' title='8 Research'>Footman</button></div>
+<div class="d26 tree"><hr></div>
+<div class="d27 tree"><button class='tech' style='color: #cc0000' id='knightTech' onclick='clickKnight()' title='24 Research - Requires: Footman'>Knight</button></div>
+<div class="d28 tree"><button class='tech' style='color: #f2f2f2' id='classicalArtTech' onclick='clickClassicalArt()' title='50 Research - Requires: Ritual, Knight, Archer'>Classical Art</button></div>
+<div class="d29 tree"><button class='tech' style='color: #cc0000' id='conquererTech' onclick='clickConquerer()' title='60 Research - Requires: Classical Art'>Conquerer</button></div>
+<div class="d30 tree"></div>
+<div class="d31 tree"><button class='tech' style='color: yellow' id='treasuryTech' onclick='clickTreasury()' title='210 Research - Requires: Free Trade'>Treasury</button></div>
+<div class="d32 tree"><button class='tech' style='color: #cc0000' id='infiltratorTech' onclick='clickInfiltrator()' title='400 Research - Requires: Treasury'>Infiltrator</button></div>
+<div class="d33 tree"></div>
+<div class="d34 tree"><button class='tech' style='color: #cc0000' id='bruteTech' onclick='clickBrute()' title='14 Research - Requires: Footman'>Brute</button></div>
+<div class="d35 tree"></div>
+<div class="d36 tree"><button class='tech' style='color: #f2f2f2' id='chantsTech' onclick='clickChants()' title='24 Research - Requires: Knight'>Chants</button></div>
+<div class="d37 tree"></div>
+<div class="d38 tree"><button class='tech' style='color: #9900e6' id='generalTech' onclick='clickGeneral()' title='110 Research - Requires: Catapult'>General</button></div>
+<div class="d39 tree"><button class='tech' style='color: #cc0000' id='goliathTech' onclick='clickGoliath()' title='250 Research - Requires: Free Trade, General'>Goliath</button></div>
+<div class="d40 tree"><button class='tech' style='color: #9900e6' id='berzerkerTech' onclick='clickBerzerker()' title='400 Research - Requires: Goliath'>Berzerker</button></div>
+<div class="d41 tree"><button class='tech' style='color: blue' id='libraryTech' onclick='clickLibrary()' title='12 Research'>Library</button></div>
+<div class="d42 tree"><hr></div>
+<div class="d43 tree"><button class='tech' style='color: #cc0000' id='archerTech' onclick='clickArcher()' title='20 Research - Requires: Library'>Archer</button></div>
+<div class="d44 tree"><button class='tech' style='color: yellow' id='harborTech' onclick='clickHarbor()' title='32 Research - Requires: Archer'>Harbor</button></div>
+<div class="d45 tree"><button class='tech' style='color: #cc0000' id='catapultTech' onclick='clickCatapult()' title='60 Research - Requires: Harbor'>Catapult</button></div>
+<div class="d46 tree"><button class='tech' style='color: blue' id='laboratoryTech' onclick='clickLaboratory()' title='130 Research - Requires: Law and Order'>Laboratory</button></div>
+<div class="d47 tree"><button class='tech' style='color: #cc0000' id='mageTech' onclick='clickMage()' title='300 Research - Requires: General, Laboratory'>Mage</button></div>
+<div class="d48 tree"><button class='tech' style='color: #f2f2f2' id='enlightenmentTech' onclick='clickEnlightenment()' title='400 Research - Requires: Mage'>Enlightenment</button></div>
+<div class="d49 tree"></div>
+<div class="d50 tree"><button class='tech' style='color: #cc0000' id='rangerTech' onclick='clickRanger()' title='16 Research - Requires: Library'>Ranger</button></div>
+<div class="d51 tree"><button class='tech' style='color: #cc0000' id='scoutTech' onclick='clickScout()' title='22 Research - Requires: Ranger'>Scout</button></div>
+<div class="d52 tree"></div>
+<div class="d53 tree"><button class='tech' style='color: #f2f2f2' id='lawAndOrderTech' onclick='clickLawAndOrder()' title='65 Research - Requires: Harbor'>Law and Order</button></div>
+<div class="d54 tree"><button class='tech' style='color: green' id='foodSiloTech' onclick='clickFoodSilo()' title='80 Research - Requires: Law and Order'>Food Silo</button></div>
+<div class="d55 tree"></div>
+<div class="d56 tree"></div>
+</div>
+
+
+
+
+
+<img id='castle' src='images/castle.png' width='50px' height='50px' style='display: none'>
+
+
+<img id='red-priest' src='images/red-priest.png' width='50px' height='50px' style='display: none'>
+<img id='blue-priest' src='images/blue-priest.png' width='50px' height='50px' style='display: none'>
+<img id='green-priest' src='images/green-priest.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-priest' src='images/yellow-priest.png' width='50px' height='50px' style='display: none'>
+
+<img id='red-general' src='images/red-general.png' width='50px' height='50px' style='display: none'>
+<img id='blue-general' src='images/blue-general.png' width='50px' height='50px' style='display: none'>
+<img id='green-general' src='images/green-general.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-general' src='images/yellow-general.png' width='50px' height='50px' style='display: none'>
+
+<img id='red-berzerker' src='images/red-berzerker.png' width='50px' height='50px' style='display: none'>
+<img id='blue-berzerker' src='images/blue-berzerker.png' width='50px' height='50px' style='display: none'>
+<img id='green-berzerker' src='images/green-berzerker.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-berzerker' src='images/yellow-berzerker.png' width='50px' height='50px' style='display: none'>
+
+<img id='red-goliath' src='images/red-goliath.png' width='50px' height='50px' style='display: none'>
+<img id='blue-goliath' src='images/blue-goliath.png' width='50px' height='50px' style='display: none'>
+<img id='green-goliath' src='images/green-goliath.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-goliath' src='images/yellow-goliath.png' width='50px' height='50px' style='display: none'>
+
+<img id='red-mage' src='images/red-mage.png' width='50px' height='50px' style='display: none'>
+<img id='blue-mage' src='images/blue-mage.png' width='50px' height='50px' style='display: none'>
+<img id='green-mage' src='images/green-mage.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-mage' src='images/yellow-mage.png' width='50px' height='50px' style='display: none'>
+
+<img id='red-shiv' src='images/red-shiv.png' width='50px' height='50px' style='display: none'>
+<img id='blue-shiv' src='images/blue-shiv.png' width='50px' height='50px' style='display: none'>
+<img id='green-shiv' src='images/green-shiv.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-shiv' src='images/yellow-shiv.png' width='50px' height='50px' style='display: none'>
+
+
+<img id='red-boot' src='images/red-boot.png' width='50px' height='50px' style='display: none'>
+<img id='blue-boot' src='images/blue-boot.png' width='50px' height='50px' style='display: none'>
+<img id='green-boot' src='images/green-boot.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-boot' src='images/yellow-boot.png' width='50px' height='50px' style='display: none'>
+
+<img id='red-catapult' src='images/red-catapult.png' width='50px' height='50px' style='display: none'>
+<img id='blue-catapult' src='images/blue-catapult.png' width='50px' height='50px' style='display: none'>
+<img id='green-catapult' src='images/green-catapult.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-catapult' src='images/yellow-catapult.png' width='50px' height='50px' style='display: none'>
+
+<img id='red-hammer' src='images/red-hammer.png' width='50px' height='50px' style='display: none'>
+<img id='blue-hammer' src='images/blue-hammer.png' width='50px' height='50px' style='display: none'>
+<img id='green-hammer' src='images/green-hammer.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-hammer' src='images/yellow-hammer.png' width='50px' height='50px' style='display: none'>
+
+
+<img id='red-hatchet' src='images/red-hatchet.png' width='50px' height='50px' style='display: none'>
+<img id='red-sword' src='images/red-sword.png' width='50px' height='50px' style='display: none'>
+<img id='red-shield' src='images/red-shield.png' width='50px' height='50px' style='display: none'>
+<img id='red-bow' src='images/red-bow.png' width='50px' height='50px' style='display: none'>
+<img id='red-dagger' src='images/red-dagger.png' width='50px' height='50px' style='display: none'>
+<img id='red-knight' src='images/red-knight.png' width='50px' height='50px'style='display: none'>
+<img id='red-conq' src='images/red-conq.png' width='50px' height='50px' style='display: none'>
+
+<img id='blue-hatchet' src='images/blue-hatchet.png' width='50px' height='50px' style='display: none'>
+<img id='blue-sword' src='images/blue-sword.png' width='50px' height='50px' style='display: none'>
+<img id='blue-shield' src='images/blue-shield.png' width='50px' height='50px' style='display: none'>
+<img id='blue-bow' src='images/blue-bow.png' width='50px' height='50px' style='display: none'>
+<img id='blue-dagger' src='images/blue-dagger.png' width='50px' height='50px' style='display: none'>
+<img id='blue-knight' src='images/blue-knight.png' width='50px' height='50px' style='display: none'>
+<img id='blue-conq' src='images/blue-conq.png' width='50px' height='50px' style='display: none'>
+
+<img id='green-hatchet' src='images/green-hatchet.png' width='50px' height='50px' style='display: none'>
+<img id='green-sword' src='images/green-sword.png' width='50px' height='50px' style='display: none'>
+<img id='green-shield' src='images/green-shield.png' width='50px' height='50px' style='display: none'>
+<img id='green-bow' src='images/green-bow.png' width='50px' height='50px' style='display: none'>
+<img id='green-dagger' src='images/green-dagger.png' width='50px' height='50px' style='display: none'>
+<img id='green-knight' src='images/green-knight.png' width='50px' height='50px' style='display: none'>
+<img id='green-conq' src='images/green-conq.png' width='50px' height='50px' style='display: none'>
+
+<img id='yellow-hatchet' src='images/yellow-hatchet.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-sword' src='images/yellow-sword.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-shield' src='images/yellow-shield.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-bow' src='images/yellow-bow.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-dagger' src='images/yellow-dagger.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-knight' src='images/yellow-knight.png' width='50px' height='50px' style='display: none'>
+<img id='yellow-conq' src='images/yellow-conq.png' width='50px' height='50px' style='display: none'>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<canvas id='canvas' width='700' height='700'></canvas>
+<script src='main.js'></script>
+
+</body>
+</html>
