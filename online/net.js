@@ -79,7 +79,8 @@ export function joinRoom(code, hello, handlers) {
   const finish = () => { if (!closed) { closed = true; handlers.onClose(); } };
 
   peer.on('open', () => {
-    conn = peer.connect(PREFIX + code, { reliable: true, serialization: 'json' });
+    // 'binary' splits large messages into chunks; the 'json' channel refuses anything over ~16 KB.
+    conn = peer.connect(PREFIX + code, { reliable: true, serialization: 'binary' });
     conn.on('open', () => { conn.send({ t: 'hello', ...hello }); handlers.onConnected(); });
     conn.on('data', msg => handlers.onMessage(msg));
     conn.on('close', finish);
