@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farm Game Online</title>
+  <meta name="description" content="Grow an economy, research a tech tree, build wonders and fight for the board with up to 4 friends.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <!-- Home: choose name, host or join -->
+  <section id="home" class="screen">
+    <div class="card home-card">
+      <h1 class="brand-lg">Farm Game <span>Online</span></h1>
+      <p class="lede">Grow an economy, research a tech tree, build wonders and fight for the board with up to 4 friends.</p>
+      <label class="field">
+        <span>Your name</span>
+        <input id="nameInput" maxlength="20" autocomplete="nickname" placeholder="e.g. Carson">
+      </label>
+      <div class="home-actions">
+        <button id="hostBtn" class="btn primary big">Host a new game</button>
+        <div class="or">or join a friend</div>
+        <form id="joinForm" class="join-row">
+          <input id="codeInput" maxlength="5" placeholder="Room code" autocapitalize="characters" spellcheck="false">
+          <button class="btn" type="submit">Join</button>
+        </form>
+      </div>
+      <p id="homeStatus" class="status" role="status"></p>
+      <details class="how">
+        <summary>How to play</summary>
+        <div class="help-body"></div>
+      </details>
+      <p class="fine"><a href="../">Play the classic single-player version</a></p>
+    </div>
+  </section>
+
+  <!-- Lobby -->
+  <section id="lobby" class="screen" hidden>
+    <div class="card lobby-card">
+      <div class="lobby-head">
+        <div>
+          <div class="eyebrow">Room code</div>
+          <div id="lobbyCode" class="room-code">·····</div>
+        </div>
+        <button id="leaveLobby" class="btn ghost small">Leave</button>
+      </div>
+      <div class="invite">
+        <input id="inviteLink" readonly aria-label="Invite link">
+        <button id="copyInvite" class="btn">Copy invite link</button>
+      </div>
+      <h3 class="sub">Players</h3>
+      <ul id="lobbyPlayers" class="lobby-players"></ul>
+      <div id="colorPick" class="color-pick"></div>
+      <div id="lobbyActions" class="lobby-actions"></div>
+      <p class="fine">The game runs in the host's browser. If the host closes their tab, the game ends for everyone.</p>
+    </div>
+  </section>
+
+  <!-- Game -->
+  <section id="game" class="screen" hidden>
+    <header class="topbar">
+      <div class="brand">Farm Game</div>
+      <div class="turn-chip">Turn <b id="turnNum">1</b></div>
+      <div id="resources" class="resources"></div>
+      <div class="spacer"></div>
+      <button id="roomChip" class="chip" title="Copy invite link"></button>
+      <button id="helpBtn" class="icon-btn" title="How to play" aria-label="How to play">?</button>
+      <button id="muteBtn" class="icon-btn" title="Sound on/off" aria-label="Toggle sound"></button>
+      <button id="readyBtn" class="ready-btn"></button>
+    </header>
+
+    <main class="layout">
+      <section class="panel left">
+        <nav class="tabs" role="tablist">
+          <button data-tab="economy" role="tab">Economy</button>
+          <button data-tab="research" role="tab">Research</button>
+          <button data-tab="wonders" role="tab">Wonders</button>
+        </nav>
+        <div id="leftBody" class="panel-body"></div>
+      </section>
+
+      <section class="center">
+        <div class="board-frame">
+          <div class="col-labels"><span></span><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span></div>
+          <div class="board-row">
+            <div class="row-labels"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>
+            <div id="board" class="board"></div>
+          </div>
+        </div>
+        <p id="boardHint" class="board-hint"></p>
+        <div class="army-head">
+          <h3>Army</h3>
+          <span class="muted">Pick a unit, then click a glowing square. Right-click or Esc to cancel.</span>
+        </div>
+        <div id="army" class="army"></div>
+      </section>
+
+      <aside class="panel right">
+        <h3>Players</h3>
+        <ul id="players" class="players"></ul>
+        <h3>Last battle</h3>
+        <div id="battle" class="battle"></div>
+        <h3>Log</h3>
+        <ol id="log" class="log"></ol>
+      </aside>
+    </main>
+  </section>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+</body>
+</html>
