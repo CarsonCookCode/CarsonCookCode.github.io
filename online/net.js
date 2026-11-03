@@ -52,6 +52,12 @@ export function hostRoom(handlers, code = randomCode(), attempt = 0) {
       Object.assign(api, hostRoom(handlers, randomCode(), attempt + 1));
       return;
     }
+    // Once the room is open, a dropped link to the matchmaking server doesn't affect
+    // players already connected (their links are direct). PeerJS reconnects on its own.
+    if (opened && ['network', 'server-error', 'socket-error', 'socket-closed', 'disconnected'].includes(err.type)) {
+      handlers.onError('Matchmaking server hiccup. Everyone already in the game is still connected; anyone joining right now may need to try again.');
+      return;
+    }
     handlers.onError(describeError(err));
   });
 

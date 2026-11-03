@@ -95,6 +95,8 @@ function helpHTML() {
       <li><b>Build.</b> Researched buildings multiply one resource. Each line has three tiers, built in order.</li>
       <li><b>Wonders.</b> Spend culture on wonders. Each one gives victory points every turn. <b>${R.VP_TO_WIN} VP wins.</b></li>
       <li><b>Fight.</b> Buy units with citizens and gold and place them on the board. Peons can start on any edge square. After that, every unit goes next to one you held at the start of the turn. Units don't move. When the turn ends, each unit hits one enemy in its range.</li>
+      <li><b>Damage.</b> Each hit does the attacker's attack minus the target's defense, at least 1. Many units have an ability; hover a unit card to read it.</li>
+      <li><b>Zones.</b> Hold all 4 squares of a zone at the end of a turn for its bonus: Growth, Gold, Culture and Research double that resource's income, and Military gives your units 1.5× damage.</li>
       <li><b>Conquer.</b> Hold all four corners (A1, A8, H1, H8) at the end of a turn for a military victory.</li>
       <li><b>Simultaneous turns.</b> Everyone plans at the same time. The turn ends when every player has pressed <b>End turn</b>.</li>
     </ol>`;
@@ -317,6 +319,9 @@ function onState(s) {
 }
 
 const myPlayer = () => state && state.players[me.pid];
+const myZones = () => (state && state.phase !== 'lobby' ? R.zoneMult(state, me.pid) : R.NO_ZONES);
+const abilityOf = u => (u.ability ? R.ABILITIES[u.ability] : null);
+const zoneFor = key => R.ZONES.find(z => z.key === key);
 const myEco = () => myPlayer()?.eco;
 const colorOf = pid => state.players[pid] ? R.COLORS[state.players[pid].color].hex : '#888';
 const nameOf = pid => state.players[pid]?.name ?? 'Unknown';
@@ -425,12 +430,13 @@ function renderReady() {
 
 function renderResources() {
   const eco = myEco();
-  const inc = R.income(eco);
+  const zm = myZones();
+  const inc = R.income(eco, zm);
   const pills = ['citizen', 'gold', 'culture', 'research'].map(k => `
-    <div class="res ${RES[k].cls}" title="${RES[k].name}${k === 'research' ? ': goes into your selected tech when the turn ends' : ''}">
-      ${ICON[k]}<span class="val">${fmt(eco[k])}</span><span class="inc">+${fmtRate(inc[k])}</span>
+    <div class="res ${RES[k].cls}${zm[k] > 1 ? ' boosted' : ''}" title="${RES[k].name}${k === 'research' ? ': goes into your research queue when the turn ends' : ''}${zm[k] > 1 ? `. Doubled by the ${zoneFor(k).name} zone.` : ''}">
+      ${ICON[k]}<span class="val">${fmt(eco[k])}</span><span class="inc">+${fmtRate(inc[k])}</span>${zm[k] > 1 ? '<span class="zone-tag">×2</span>' : ''}
       <span class="res-name">${RES[k].name}</span>
-    </div>`).join('');
+    </div>`).join('') + (zm.damage > 1 ? `<div class="res r-mil boosted" title="You hold the Military zone: your units deal 1.5× damage.">⚔<span class="val">×1.5</span><span class="res-name">Damage</span></div>` : '');
   const pct = Math.min(100, eco.vp / R.VP_TO_WIN * 100);
   $('#resources').innerHTML = pills + `
     <div class="res r-vp" title="Victory points. ${R.VP_TO_WIN} wins. Wonders add VP every turn.">
@@ -467,12 +473,14 @@ document.querySelector('.tabs').addEventListener('click', e => {
 
 function economyHTML(eco) {
   const q = ui.qty;
+  const zm = myZones();
+  const rate = k => fmtRate(eco.mult[k] * zm[k]) + (zm[k] > 1 ? ' (zone ×2)' : '');
   const seg = [1, 10, 100].map(n => `<button data-qty="${n}" class="${q === n ? 'on' : ''}">×${n}</button>`).join('');
   const workers = [
-    { key: 'farm', name: 'Farms', icon: 'farm', cls: 'r-citizen', desc: `+${fmtRate(eco.mult.citizen)} citizens per turn each`, cost: { citizen: eco.farmCost }, act: { type: 'buyFarm' }, verb: 'Build', note: 'Each farm costs 3 more than the last' },
-    { key: 'merchant', name: 'Merchants', icon: 'gold', cls: 'r-gold', desc: `+${fmtRate(eco.mult.gold)} gold per turn each`, cost: { citizen: q }, act: { type: 'hire', role: 'merchant' }, verb: 'Hire' },
-    { key: 'artist', name: 'Artists', icon: 'culture', cls: 'r-culture', desc: `+${fmtRate(eco.mult.culture)} culture per turn each, +1 right away`, cost: { citizen: q }, act: { type: 'hire', role: 'artist' }, verb: 'Hire' },
-    { key: 'scholar', name: 'Scholars', icon: 'research', cls: 'r-research', desc: `+${fmtRate(eco.mult.research)} research per turn each, +1 right away`, cost: { citizen: q }, act: { type: 'hire', role: 'scholar' }, verb: 'Hire' },
+    { key: 'farm', name: 'Farms', icon: 'farm', cls: 'r-citizen', desc: `+${rate('citizen')} citizens per turn each`, cost: { citizen: eco.farmCost }, act: { type: 'buyFarm' }, verb: 'Build', note: 'Each farm costs 3 more than the last' },
+    { key: 'merchant', name: 'Merchants', icon: 'gold', cls: 'r-gold', desc: `+${rate('gold')} gold per turn each`, cost: { citizen: q }, act: { type: 'hire', role: 'merchant' }, verb: 'Hire' },
+    { key: 'artist', name: 'Artists', icon: 'culture', cls: 'r-culture', desc: `+${rate('culture')} culture per turn each, +1 right away`, cost: { citizen: q }, act: { type: 'hire', role: 'artist' }, verb: 'Hire' },
+    { key: 'scholar', name: 'Scholars', icon: 'research', cls: 'r-research', desc: `+${rate('research')} research per turn each, +1 right away`, cost: { citizen: q }, act: { type: 'hire', role: 'scholar' }, verb: 'Hire' },
   ];
   const rows = workers.map(w => {
     const affordable = eco.citizen >= w.cost.citizen;
@@ -487,15 +495,15 @@ function economyHTML(eco) {
   const tracks = R.TRACKS.map(t => {
     const tier = eco.buildings[t.id];
     const next = t.tiers[tier];
-    const tiles = t.tiers.map((b, k) => `<div class="btile ${k < tier ? 'built' : k === tier ? 'next' : ''}" title="${b.name}: ×${b.mult} ${RES[t.id].name.toLowerCase()}">
-        <img src="../images/${b.img}.png" alt=""><span>${b.name}</span><em>×${b.mult}</em></div>`).join('');
+    const tiles = t.tiers.map((b, k) => `<div class="btile ${k < tier ? 'built' : k === tier ? 'next' : ''}" title="${b.name}: ×${b.mult} ${RES[t.id].name.toLowerCase()}. Costs ${R.TIER_COST[k].citizen} citizens and ${R.TIER_COST[k].gold} gold.">
+        <img src="../images/${b.img}.png" alt=""><span>${b.name}</span><em>×${b.mult}</em><small class="tile-cost">${costHTML(R.TIER_COST[k])}</small></div>`).join('');
     let action;
     if (!next) action = `<span class="done-note">${ICON.check} All built</span>`;
-    else if (!eco.techDone[next.id]) action = `<button class="btn act" disabled>${ICON.lock} Research ${next.name}</button>`;
+    else if (!eco.techDone[next.id]) action = `<button class="btn act" disabled title="Research ${next.name} to unlock">${ICON.lock} Research ${next.name}<span class="costs">${costHTML(R.TIER_COST[tier])}</span></button>`;
     else {
       const cost = R.TIER_COST[tier];
       const ok = eco.citizen >= cost.citizen && eco.gold >= cost.gold;
-      action = `<button class="btn act ${ok ? 'glow' : ''}" data-act='${JSON.stringify({ type: 'build', track: t.id })}' ${ok ? '' : 'disabled'}>Build ${next.name}<span class="costs">${costHTML(cost)}</span></button>`;
+      action = `<button class="btn act ${ok ? 'glow' : ''}" data-act='${JSON.stringify({ type: 'build', track: t.id })}' ${ok ? '' : 'disabled'}>Build ${next.name} (×${next.mult})<span class="costs">${costHTML(cost)}</span></button>`;
     }
     return `<div class="track">
       <div class="track-head"><span class="${RES[t.id].cls}">${ICON[t.id]}</span><b>${RES[t.id].name}</b><span class="mult">×${fmtRate(eco.mult[t.id])}</span></div>
@@ -507,14 +515,14 @@ function economyHTML(eco) {
   return `<div class="section-head"><h3>Workers</h3><div class="seg" role="group" aria-label="Buy quantity">${seg}</div></div>
     <div class="rows">${rows}</div>
     <div class="section-head"><h3>Buildings</h3></div>
-    <p class="muted small">Each building multiplies one resource. Research it first, then build the tiers in order.</p>
+    <p class="muted small">Each building multiplies one resource. Research it first, then build the tiers in order. A new tier <b>replaces</b> the last one's multiplier (Granary ×1.5, then Food Silo ×2, then Aqueduct ×3), so they don't stack. Zone bonuses do stack on top.</p>
     <div class="tracks">${tracks}</div>`;
 }
 
 function researchHTML(eco) {
   const kindLabel = { unit: 'Unit', building: 'Building', wonder: 'Wonder' };
   const act = o => `data-act='${JSON.stringify(o)}'`;
-  const eta = R.queueEta(eco);
+  const eta = R.queueEta(eco, myZones());
   const turns = n => n === undefined ? 'needs scholars' : n === 1 ? 'this turn' : `in ${n} turns`;
   const incoming = eco.research + eco.bank;
   let current;
@@ -570,7 +578,7 @@ function wondersHTML(eco) {
     const ok = known && !built && eco.culture >= w.culture;
     let action;
     if (built) action = `<span class="done-note">${ICON.check} Built</span>`;
-    else if (!known) action = `<span class="lock-note">${ICON.lock} Research ${w.name}</span>`;
+    else if (!known) action = `<span class="lock-note">${ICON.lock} Research ${w.name} · ${costHTML({ culture: w.culture })}</span>`;
     else action = `<button class="btn act ${ok ? 'glow' : ''}" data-act='${JSON.stringify({ type: 'wonder', id: w.id })}' ${ok ? '' : 'disabled'}>Build<span class="costs">${costHTML({ culture: w.culture })}</span></button>`;
     return `<div class="wonder ${built ? 'built' : known ? 'known' : ''}">
       <div class="wonder-vp">+${w.vp}<small>VP/turn</small></div>
@@ -600,12 +608,15 @@ function renderArmy() {
     const unlocked = R.unitUnlocked(eco, u.id);
     const afford = eco.citizen >= u.citizen && eco.gold >= u.gold;
     const sel = ui.selected === u.id;
-    return `<button class="unit-card ${sel ? 'sel' : ''} ${unlocked ? '' : 'locked'} ${unlocked && !afford ? 'poor' : ''}" data-unit="${u.id}"
-      title="${u.name}: ${u.hp} HP, ${u.atk} attack. ${R.RANGE_LABEL[u.range]}.${u.id === 'peon' ? ' Can be placed on any edge square.' : ''}${unlocked ? '' : ' Research ' + R.TECH[u.tech].name + ' to unlock.'}">
+    const ab = abilityOf(u);
+    const tip = `${u.name}: ${u.hp} health, ${u.atk} attack, ${u.def} defense. ${R.RANGE_LABEL[u.range]}.${u.id === 'peon' ? ' Can be placed on any edge square.' : ''}${ab ? ` ${ab.name}: ${ab.text}` : ''}${unlocked ? '' : ' Research ' + R.TECH[u.tech].name + ' to unlock.'}`;
+    return `<button class="unit-card ${sel ? 'sel' : ''} ${unlocked ? '' : 'locked'} ${unlocked && !afford ? 'poor' : ''}" data-unit="${u.id}" title="${esc(tip)}">
       ${spriteImg(color, u.id, 'unit-img')}
       <span class="unit-name">${u.name}</span>
-      ${unlocked ? `<span class="unit-cost">${costHTML({ citizen: u.citizen, gold: u.gold })}</span>` : `<span class="unit-lock">${ICON.lock}${R.TECH[u.tech].name}</span>`}
-      <span class="unit-stats"><span title="Health">♥ ${u.hp}</span><span title="Attack">⚔ ${u.atk}</span>${rangeGlyph(u.range)}</span>
+      <span class="unit-cost">${costHTML({ citizen: u.citizen, gold: u.gold })}</span>
+      <span class="unit-stats"><span title="Health">♥${u.hp}</span><span title="Attack">⚔${u.atk}</span><span title="Defense">⛨${u.def}</span></span>${rangeGlyph(u.range)}
+      ${ab ? `<span class="unit-ability" title="${esc(ab.text)}">${ab.name}</span>` : ''}
+      ${unlocked ? '' : `<span class="unit-lock">${ICON.lock}${R.TECH[u.tech].name}</span>`}
     </button>`;
   }).join('');
 }
@@ -671,7 +682,7 @@ function renderBoard() {
     const idxs = z.cells.map(R.cellIndex);
     const minC = Math.min(...idxs.map(R.colOf)), minR = Math.min(...idxs.map(i => Math.floor(i / 8)));
     const owner = R.zoneOwner(state, z);
-    html += `<div class="zone ${owner ? 'held' : ''}" style="grid-column:${minC + 1}/span 2;grid-row:${minR + 1}/span 2;${owner ? `--zc:${colorOf(owner)}` : ''}"><span>${z.name}</span></div>`;
+    html += `<div class="zone ${owner ? 'held' : ''}" style="grid-column:${minC + 1}/span 2;grid-row:${minR + 1}/span 2;${owner ? `--zc:${colorOf(owner)}` : ''}"><span>${z.name} ${z.key === "damage" ? "×1.5 dmg" : "×2"}</span></div>`;
   }
   $('#board').innerHTML = html;
   $('#board').classList.toggle('placing', !!sel);
@@ -688,14 +699,15 @@ function renderHint(placeable) {
     const afford = eco.citizen >= d.citizen && eco.gold >= d.gold;
     hint.innerHTML = `Placing <b>${d.name}</b> (${costHTML({ citizen: d.citizen, gold: d.gold })}). ` +
       (!afford ? `<span class="warn">You can't afford another one.</span>` :
-        placeable.size ? `Click a glowing square.${d.id === 'peon' ? ' Peons can go on any edge square.' : ''}` :
+        placeable.size ? `Click a glowing square.${d.id === 'peon' ? ' Peons can go on any edge square.' : d.id === 'infiltrator' ? ' Infiltrators can go on any empty square not next to an enemy.' : ''}` :
           `<span class="warn">No valid squares. Start with a Peon on an edge square, or wait a turn for your units' reach to grow.</span>`);
   } else if (u) {
     const d = R.UNIT[u.unit];
-    hint.innerHTML = `<b style="color:${colorOf(u.owner)}">${esc(nameOf(u.owner))}</b>'s ${d.name} on ${R.cellName(hover)}: ${u.hp}/${d.hp} HP, ${d.atk} attack. ${R.RANGE_LABEL[d.range]}.`;
+    const ab = abilityOf(d);
+    hint.innerHTML = `<b style="color:${colorOf(u.owner)}">${esc(nameOf(u.owner))}</b>'s ${d.name} on ${R.cellName(hover)}: ${u.hp}/${d.hp} health, ${d.atk} attack, ${d.def} defense. ${R.RANGE_LABEL[d.range]}.${ab ? ` <b>${ab.name}:</b> ${ab.text}` : ''}`;
   } else if (hover >= 0) {
     const z = R.ZONES.find(z => z.cells.includes(R.cellName(hover)));
-    hint.innerHTML = `${R.cellName(hover)}${R.CORNERS.includes(R.cellName(hover)) ? ': corner. Hold all four corners to win.' : ''}${z ? `: ${z.name} zone. Holding all 4 squares outlines it in your colour.` : ''}`;
+    hint.innerHTML = `${R.cellName(hover)}${R.CORNERS.includes(R.cellName(hover)) ? ': corner. Hold all four corners to win.' : ''}${z ? `: ${z.name} zone. Hold all 4 squares at the end of a turn for ${z.bonus}.` : ''}`;
   } else {
     hint.innerHTML = 'Hover a unit to see its attack range. Hold all four corners at the end of a turn to win.';
   }
@@ -717,7 +729,7 @@ $('#board').addEventListener('click', e => {
     return;
   }
   if (!R.canPlace(state, me.pid, ui.selected, i)) {
-    toast(state.board[i] ? 'Another player holds that square.' : ui.selected === 'peon' ? 'Peons go on an edge square or next to your units.' : 'Place units on the glowing squares, next to your existing units.', 'error');
+    toast(state.board[i] ? 'Another player holds that square.' : ui.selected === 'peon' ? 'Peons go on an edge square or next to your units.' : ui.selected === 'infiltrator' ? 'Infiltrators can go on any empty square that is not next to an enemy.' : 'Place units on the glowing squares, next to your existing units.', 'error');
     play('error');
     return;
   }
@@ -758,6 +770,7 @@ function renderPlayers() {
         <span title="Units on the board">${units} unit${units === 1 ? '' : 's'}</span>
         <span title="Corners held (4 = military victory)">${corners}/4 corners</span>
       </div>
+      ${(() => { const held = R.ZONES.filter(z => R.zoneOwner(state, z) === pid); return held.length ? `<div class="pl-zones">${held.map(z => `<span class="zone-chip" title="${z.name} zone: ${z.bonus}">${z.name} · ${z.bonus}</span>`).join('')}</div>` : ''; })()}
     </li>`;
   }).join('');
 }
@@ -765,15 +778,20 @@ function renderPlayers() {
 function renderBattle() {
   const ev = state.lastEvents || [];
   const hits = ev.filter(e => e.type === 'hit');
-  if (!hits.length && !ev.some(e => e.type === 'kill')) {
+  const heals = ev.filter(e => e.type === 'heal');
+  const selfs = ev.filter(e => e.type === 'self');
+  if (!hits.length && !heals.length && !ev.some(e => e.type === 'kill')) {
     $('#battle').innerHTML = `<p class="muted small">${state.turn > 1 ? 'No fighting last turn.' : 'Battles happen when the turn ends.'}</p>`;
     return;
   }
   const lines = hits.slice(0, 40).map(h => {
-    return `<li><span class="dot" style="background:${colorOf(h.owner)}"></span>${R.cellName(h.from)} → ${R.cellName(h.to)} <b>−${h.dmg}</b></li>`;
+    const tag = h.kind ? ` <em class="b-kind">${{ charge: 'Charge', frenzy: 'Frenzy', arcane: 'Arcane', crush: 'Crush' }[h.kind] || ''}</em>` : '';
+    return `<li><span class="dot" style="background:${colorOf(h.owner)}"></span>${R.cellName(h.from)} → ${R.cellName(h.to)}${tag} <b>−${h.dmg}</b></li>`;
   });
   const kills = ev.filter(e => e.type === 'kill').map(k => `<li class="kill"><span class="dot" style="background:${colorOf(k.owner)}"></span>${esc(nameOf(k.owner))}'s ${R.UNIT[k.unit].name} fell on ${R.cellName(k.cell)}</li>`);
-  $('#battle').innerHTML = `<ul class="battle-list">${kills.join('')}${lines.join('')}</ul>`;
+  const healLines = heals.map(h => `<li class="heal"><span class="dot" style="background:${colorOf(h.owner)}"></span>${R.cellName(h.from)} heals ${R.cellName(h.to)} <b>+${h.amt}</b></li>`);
+  const selfLines = selfs.map(x => `<li><span class="dot" style="background:${colorOf(x.owner)}"></span>Berserker on ${R.cellName(x.cell)} <em class="b-kind">Frenzy</em> <b>−${x.dmg}</b></li>`);
+  $('#battle').innerHTML = `<ul class="battle-list">${kills.join('')}${lines.join('')}${selfLines.join('')}${healLines.join('')}</ul>`;
 }
 
 function renderLog() {
@@ -963,17 +981,24 @@ function afterResolve() {
   const ev = state.lastEvents || [];
   const board = $('#board');
   const cells = board.querySelectorAll('[data-i]');
+  const dmg = {}, heal = {}, killed = new Set();
   for (const e of ev) {
-    if (e.type === 'hit' || e.type === 'kill') {
-      const cell = cells[e.type === 'hit' ? e.to : e.cell];
-      if (!cell) continue;
-      const f = document.createElement('span');
-      f.className = 'floater' + (e.type === 'kill' ? ' kill' : '');
-      f.textContent = e.type === 'hit' ? `−${e.dmg}` : '✕';
-      cell.appendChild(f);
-      cell.classList.add(e.type === 'kill' ? 'flash-kill' : 'flash-hit');
-    }
+    if (e.type === 'hit') dmg[e.to] = (dmg[e.to] || 0) + e.dmg;
+    if (e.type === 'self') dmg[e.cell] = (dmg[e.cell] || 0) + e.dmg;
+    if (e.type === 'heal') heal[e.to] = (heal[e.to] || 0) + e.amt;
+    if (e.type === 'kill') killed.add(e.cell);
   }
+  const float = (i, text, cls) => {
+    const cell = cells[i];
+    if (!cell) return;
+    const f = document.createElement('span');
+    f.className = 'floater ' + cls;
+    f.textContent = text;
+    cell.appendChild(f);
+  };
+  for (const i of Object.keys(dmg)) if (!killed.has(+i)) { float(+i, `−${dmg[i]}`, ''); cells[i]?.classList.add('flash-hit'); }
+  for (const i of Object.keys(heal)) float(+i, `+${heal[i]}`, 'heal');
+  for (const i of killed) { float(i, '✕', 'kill'); cells[i]?.classList.add('flash-kill'); }
   const techs = ev.filter(e => e.type === 'tech' && e.pid === me.pid);
   for (const t of techs) toast(`Research complete: ${R.TECH[t.tech].name}`, 'good');
   if (state.phase === 'playing') {

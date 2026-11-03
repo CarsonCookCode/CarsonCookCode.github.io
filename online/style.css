@@ -427,6 +427,26 @@ input:focus, .btn:focus-visible, button:focus-visible { outline: 2px solid var(-
 .glyph i.h { background: #d0473f; }
 .glyph i.c { background: var(--ink); }
 
+/* ---------- zones, defense, abilities ---------- */
+.res.boosted { border-color: #e0b44a; background: #fff8e6; }
+.zone-tag { font: 700 10px var(--font); color: #8a5a00; background: #ffe7a8; border-radius: 5px; padding: 1px 4px; }
+.r-mil { color: #b8352f; font-weight: 700; }
+.tile-cost { display: flex; justify-content: center; }
+.tile-cost .costs, .btile .cost { font-size: 10px; gap: 3px; }
+.btile .cost svg { width: 10px; height: 10px; }
+.unit-card { position: relative; }
+.unit-card > .glyph { position: absolute; top: 6px; right: 6px; }
+.unit-stats { gap: 5px; }
+.unit-ability { font: 700 10px var(--font); text-transform: uppercase; letter-spacing: .04em; color: #7a2f9c; background: #f2e6f8; border-radius: 5px; padding: 1px 6px; }
+.unit-card.locked { opacity: .72; }
+.unit-card.locked .unit-cost { opacity: .8; }
+.pl-zones { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.zone-chip { font: 600 10.5px var(--font); color: #8a5a00; background: #fff3d6; border: 1px solid #f0d692; border-radius: 99px; padding: 1px 7px; }
+.battle-list li.heal b { color: var(--accent); }
+.b-kind { font-style: normal; font-size: 10px; font-weight: 700; text-transform: uppercase; color: #7a2f9c; }
+.floater.heal { color: var(--accent); }
+.zone span { white-space: nowrap; }
+
 /* ---------- view switch ---------- */
 .view-switch { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 3px; margin-bottom: 12px; box-shadow: var(--shadow); }
 .view-switch button {
