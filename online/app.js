@@ -27,7 +27,10 @@ let net = null;
 let state = null;
 let roomCode = null;
 const connPid = new Map(); // host only: connection -> pid
-const ui = { tab: 'economy', qty: 1, selected: null, hover: -1, lastTurnSeen: 0, lastRev: -1, muted: local.get('fg-muted') === '1' };
+const ui = {
+  tab: 'economy', qty: 1, selected: null, hover: -1, lastTurnSeen: 0, lastRev: -1, muted: local.get('fg-muted') === '1',
+  view: 'board', cityPid: null, cityBuilt: {}, cityWonders: {}, cityAttn: false, myBuildCount: -1,
+};
 
 // ---------- icons ----------
 const ICON = {
@@ -88,7 +91,7 @@ function helpHTML() {
   return `
     <ol class="help-list">
       <li><b>Grow.</b> Farms make citizens each turn. Spend citizens to hire <b>merchants</b> (gold), <b>artists</b> (culture) and <b>scholars</b> (research).</li>
-      <li><b>Research.</b> Pick one technology at a time. Each turn your research points go into it. Points left over after it finishes are lost, and research only builds up while a tech is selected.</li>
+      <li><b>Research.</b> Queue up technologies. Each turn your research points go into the first one, and leftover points roll into the next. Clicking a locked tech queues its prerequisites too. With nothing queued, points are saved for later.</li>
       <li><b>Build.</b> Researched buildings multiply one resource. Each line has three tiers, built in order.</li>
       <li><b>Wonders.</b> Spend culture on wonders. Each one gives victory points every turn. <b>${R.VP_TO_WIN} VP wins.</b></li>
       <li><b>Fight.</b> Buy units with citizens and gold and place them on the board. Peons can start on any edge square. After that, every unit goes next to one you held at the start of the turn. Units don't move. When the turn ends, each unit hits one enemy in its range.</li>
@@ -299,7 +302,10 @@ function onState(s) {
   const prevTurn = ui.lastTurnSeen;
   const prevPhase = state && state.phase;
   state = s;
-  if (state.phase === 'lobby') { ui.lastTurnSeen = 0; renderLobby(); showScreen('lobby'); return; }
+  if (state.phase === 'lobby') {
+    Object.assign(ui, { lastTurnSeen: 0, myBuildCount: -1, cityBuilt: {}, cityWonders: {}, cityAttn: false });
+    renderLobby(); showScreen('lobby'); return;
+  }
 
   showScreen('game');
   const turnAdvanced = prevTurn && (state.turn !== prevTurn || (state.phase === 'over' && prevPhase === 'playing'));
@@ -391,6 +397,13 @@ function renderGame() {
   renderPlayers();
   renderBattle();
   renderLog();
+  if (p && p.eco) {
+    // Flag the City tab when something new goes up while you're on the battlefield.
+    const count = Object.values(p.eco.buildings).reduce((a, b) => a + b, 0) + Object.keys(p.eco.wonders).length;
+    if (ui.myBuildCount >= 0 && count > ui.myBuildCount && ui.view !== 'city') ui.cityAttn = true;
+    ui.myBuildCount = count;
+  }
+  setView(ui.view);
 }
 
 function renderReady() {
@@ -434,7 +447,7 @@ function renderLeft() {
     b.setAttribute('aria-selected', b.dataset.tab === ui.tab);
   });
   // attention dots
-  const researchIdle = !eco.activeTech && R.TECHS.some(t => R.techAvailable(eco, t.id));
+  const researchIdle = !eco.queue.length && R.TECHS.some(t => R.techAvailable(eco, t.id));
   const wonderReady = R.WONDERS.some(w => eco.techDone[w.id] && !eco.wonders[w.id] && eco.culture >= w.culture);
   document.querySelector('[data-tab="research"]').classList.toggle('attn', researchIdle);
   document.querySelector('[data-tab="wonders"]').classList.toggle('attn', wonderReady);
@@ -500,41 +513,54 @@ function economyHTML(eco) {
 
 function researchHTML(eco) {
   const kindLabel = { unit: 'Unit', building: 'Building', wonder: 'Wonder' };
+  const act = o => `data-act='${JSON.stringify(o)}'`;
+  const eta = R.queueEta(eco);
+  const turns = n => n === undefined ? 'needs scholars' : n === 1 ? 'this turn' : `in ${n} turns`;
+  const incoming = eco.research + eco.bank;
   let current;
-  if (eco.activeTech) {
-    const t = R.TECH[eco.activeTech];
+  if (eco.queue.length) {
+    const t = R.TECH[eco.queue[0]];
     const prog = eco.techProg[t.id] || 0;
-    const nextRate = eco.scholar * eco.mult.research;
-    const left = t.cost - prog;
-    const etaFirst = eco.research >= left ? 1 : nextRate > 0 ? 1 + Math.ceil((left - eco.research) / nextRate) : null;
+    const rest = eco.queue.slice(1).map((id, k) => {
+      const q = R.TECH[id];
+      return `<li><span class="q-num">${k + 2}</span><span class="q-name">${q.name}</span><span class="q-eta">${turns(eta[id])}</span>
+        ${R.techAvailable(eco, id) ? `<button class="q-btn" ${act({ type: 'researchFirst', tech: id })} title="Research this next">Do next</button>` : ''}
+        <button class="q-btn x" ${act({ type: 'unqueue', tech: id })} title="Remove from queue" aria-label="Remove ${q.name}">×</button></li>`;
+    }).join('');
     current = `<div class="current">
-      <div class="eyebrow">Researching</div>
+      <div class="current-head"><div class="eyebrow">Researching</div><button class="q-btn x" ${act({ type: 'unqueue', tech: t.id })} title="Remove from queue" aria-label="Remove ${t.name}">×</button></div>
       <div class="current-title">${t.name} <span class="kind k-${t.kind}">${kindLabel[t.kind]}</span></div>
-      <div class="bar"><i style="width:${Math.min(100, prog / t.cost * 100)}%"></i><i class="pending" style="width:${Math.min(100 - prog / t.cost * 100, eco.research / t.cost * 100)}%"></i></div>
-      <div class="current-meta"><span>${fmt(prog)} / ${t.cost}</span><span>+${fmt(eco.research)} this turn${etaFirst ? ` · done in ${etaFirst} turn${etaFirst > 1 ? 's' : ''}` : ' · hire scholars!'}</span></div>
+      <div class="bar"><i style="width:${Math.min(100, prog / t.cost * 100)}%"></i><i class="pending" style="width:${Math.min(100 - prog / t.cost * 100, incoming / t.cost * 100)}%"></i></div>
+      <div class="current-meta"><span>${fmt(prog)} / ${t.cost}</span><span>+${fmt(incoming)} this turn · done ${turns(eta[t.id])}</span></div>
+      ${rest ? `<div class="eyebrow q-label">Up next</div><ol class="queue">${rest}</ol>` : ''}
     </div>`;
   } else {
-    current = `<div class="current idle"><div class="eyebrow">Not researching</div><div class="current-title">Pick a technology below</div>
-      <div class="muted small">Research only builds up while a tech is selected. This turn's ${fmt(eco.research)} points will be lost otherwise.</div></div>`;
+    current = `<div class="current idle"><div class="eyebrow">Nothing queued</div><div class="current-title">Pick technologies below</div>
+      <div class="muted small">Research isn't wasted: points are saved until you queue something.${eco.bank ? ` You have <b>${fmt(eco.bank)}</b> saved.` : ''}</div></div>`;
   }
+  const bank = eco.bank && eco.queue.length ? `<span class="bank" title="Saved research points. They go into your queue at the end of the turn.">${ICON.research}${fmt(eco.bank)} saved</span>` : '';
   const eras = [];
   for (const t of R.TECHS) (eras[t.era] ||= []).push(t);
   const grid = eras.map((list, e) => `<div class="era"><div class="era-label">Era ${e + 1}</div><div class="era-cards">${list.map(t => {
     const done = eco.techDone[t.id];
     const avail = R.techAvailable(eco, t.id);
-    const active = eco.activeTech === t.id;
+    const qpos = eco.queue.indexOf(t.id);
     const prog = eco.techProg[t.id] || 0;
-    const state = done ? 'done' : active ? 'active' : avail ? 'avail' : 'locked';
+    const state = done ? 'done' : qpos === 0 ? 'active' : qpos > 0 ? 'queued' : avail ? 'avail' : 'locked';
+    const missing = R.pathTo(eco, t.id).filter(id => id !== t.id);
     const needs = t.req.filter(r => !eco.techDone[r]).map(r => R.TECH[r].name).join(', ');
-    return `<button class="tech ${state}" ${avail && !active ? `data-act='${JSON.stringify({ type: 'research', tech: t.id })}'` : ''} ${!avail && !done ? 'aria-disabled="true"' : ''}
-      title="${done ? 'Researched' : avail ? 'Click to research' : 'Needs ' + needs}">
-      <span class="tech-top"><span class="tech-name">${t.name}</span>${done ? ICON.check : !avail ? ICON.lock : ''}</span>
+    const action = done ? '' : qpos >= 0 ? act({ type: 'unqueue', tech: t.id }) : act({ type: 'research', tech: t.id });
+    const title = done ? 'Researched' : qpos >= 0 ? 'Click to remove from your queue'
+      : missing.length ? `Click to queue this along with ${missing.map(id => R.TECH[id].name).join(', ')}` : 'Click to add to your research queue';
+    return `<button class="tech ${state}" ${action} title="${esc(title)}">
+      <span class="tech-top"><span class="tech-name">${t.name}</span>${done ? ICON.check : qpos >= 0 ? `<span class="q-badge">${qpos === 0 ? 'Now' : '#' + (qpos + 1)}</span>` : !avail ? ICON.lock : ''}</span>
       <span class="tech-sub"><span class="kind k-${t.kind}">${kindLabel[t.kind]}</span>${done ? '' : `<span class="tech-cost">${prog ? fmt(prog) + '/' : ''}${t.cost}</span>`}</span>
-      ${!done && !avail ? `<span class="tech-needs">Needs ${esc(needs)}</span>` : ''}
+      ${!done && !avail && qpos < 0 ? `<span class="tech-needs">Needs ${esc(needs)}</span>` : ''}
       ${prog && !done ? `<span class="mini-bar"><i style="width:${prog / t.cost * 100}%"></i></span>` : ''}
     </button>`;
   }).join('')}</div></div>`).join('');
-  return current + `<div class="section-head"><h3>Tech tree</h3><span class="muted small">${Object.keys(eco.techDone).length}/${R.TECHS.length}</span></div>` + grid;
+  return current + `<div class="section-head"><h3>Tech tree</h3>${bank}<span class="muted small">${Object.keys(eco.techDone).length}/${R.TECHS.length}</span></div>
+    <p class="muted small tree-tip">Click a tech to queue it. Locked techs queue their prerequisites too.</p>` + grid;
 }
 
 function wondersHTML(eco) {
@@ -754,6 +780,182 @@ function renderLog() {
   const items = state.log.slice(-40).reverse();
   $('#log').innerHTML = items.map(l => `<li${l.pid ? ` style="--pc:${colorOf(l.pid)}"` : ''}><span class="lt">T${l.turn}</span>${esc(l.text)}</li>`).join('');
 }
+
+// ---------- city view ----------
+// Bounding boxes of the drawings inside the original images: [imgW, imgH, x, y, w, h].
+const CROP = {
+  house: [800, 400, 299, 102, 125, 179], farm2: [800, 400, 53, 178, 719, 173],
+  granary: [382, 383, 29, 18, 327, 356], silo: [974, 730, 333, 33, 264, 692], aqueduct: [800, 400, 0, 0, 561, 367],
+  market: [800, 400, 7, 43, 746, 280], harbor: [800, 400, 136, 15, 404, 315], treasury: [800, 400, 102, 8, 588, 314],
+  merchant: [600, 400, 76, 0, 448, 400], shrine: [672, 503, 65, 3, 543, 493], temple: [943, 707, 50, 0, 851, 655],
+  cathedral: [1024, 768, 105, 1, 717, 763], library: [800, 400, 18, 62, 764, 239], university: [427, 427, 19, 7, 381, 382],
+  laboratory: [800, 400, 30, 10, 755, 304], lake: [800, 400, 346, 9, 439, 319],
+};
+const SCENE_RATIO = 0.625; // height / width of the scene
+// Lots: x = left %, y = ground line % (where the drawing stands), w = width %.
+const LOTS = {
+  shrine: { x: 3, y: 41, w: 6.5 }, temple: { x: 10.5, y: 41, w: 10 }, cathedral: { x: 21.5, y: 41, w: 7.5 },
+  granary: { x: 2.5, y: 63, w: 6 }, foodSilo: { x: 9.5, y: 63, w: 3.4, img: 'silo' }, aqueduct: { x: 0, y: 74, w: 40, back: true },
+  market: { x: 41, y: 44, w: 15 }, harbor: { x: 60.5, y: 47, w: 9 }, treasury: { x: 61, y: 73, w: 11 },
+  library: { x: 56, y: 94, w: 13 }, university: { x: 71, y: 94, w: 8 }, laboratory: { x: 81, y: 94, w: 15 },
+};
+const HOUSE_SLOTS = [];
+for (const [row, y] of [[0, 61], [1, 69], [2, 77]]) for (let c = 0; c < 6; c++) HOUSE_SLOTS.push({ x: 33 + c * 4.4 + (row % 2) * 2.2, y });
+const FIELD_SLOTS = [];
+for (const y of [78, 85, 92, 99]) for (let c = 0; c < 3; c++) FIELD_SLOTS.push({ x: 1.5 + c * 10, y });
+
+// The original drawings sit on white canvases. Cut the white away (flood-filled from the
+// edges so white walls inside a drawing stay), crop to the drawing, and cache as data URLs.
+const cityArt = {};
+let cityArtLoading = null;
+function loadCityArt() {
+  if (cityArtLoading) return cityArtLoading;
+  cityArtLoading = Promise.all(Object.entries(CROP).map(async ([name, [, , cx, cy, cw, ch]]) => {
+    try {
+      const img = new Image();
+      img.src = `../images/${name}.png`;
+      await img.decode();
+      const scale = Math.min(1, 360 / Math.max(cw, ch));
+      const w = Math.max(1, Math.round(cw * scale)), h = Math.max(1, Math.round(ch * scale));
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const g = c.getContext('2d');
+      g.drawImage(img, cx, cy, cw, ch, 0, 0, w, h);
+      const d = g.getImageData(0, 0, w, h);
+      const px = d.data;
+      const white = i => px[i * 4 + 3] < 20 || Math.min(px[i * 4], px[i * 4 + 1], px[i * 4 + 2]) > 232;
+      const seen = new Uint8Array(w * h);
+      const stack = [];
+      for (let x = 0; x < w; x++) stack.push(x, (h - 1) * w + x);
+      for (let y = 0; y < h; y++) stack.push(y * w, y * w + w - 1);
+      while (stack.length) {
+        const i = stack.pop();
+        if (seen[i] || !white(i)) continue;
+        seen[i] = 1;
+        px[i * 4 + 3] = 0;
+        const x = i % w;
+        if (x > 0) stack.push(i - 1);
+        if (x < w - 1) stack.push(i + 1);
+        if (i >= w) stack.push(i - w);
+        if (i < w * (h - 1)) stack.push(i + w);
+      }
+      g.putImageData(d, 0, 0);
+      cityArt[name] = c.toDataURL('image/png');
+    } catch { /* fall back to the raw image */ }
+  })).then(() => { if (ui.view === 'city' && state && state.phase !== 'lobby') renderCity(); });
+  return cityArtLoading;
+}
+
+function cityImg(name, x, y, w, { ghost = false, label = '', cls = '', z } = {}) {
+  const [W, H, cx, cy, cw, ch] = CROP[name];
+  const hPct = (w * (ch / cw)) / SCENE_RATIO;
+  let art;
+  if (cityArt[name]) art = `<img src="${cityArt[name]}" alt="" draggable="false">`;
+  else {
+    const pos = (o, full, part) => (full === part ? 0 : (o / (full - part)) * 100);
+    art = `<i class="raw" style="background-image:url(../images/${name}.png);background-size:${(W / cw) * 100}% ${(H / ch) * 100}%;background-position:${pos(cx, W, cw)}% ${pos(cy, H, ch)}%"></i>`;
+  }
+  return `<div class="cs ${ghost ? 'ghost' : ''} ${cls}" style="left:${x}%;top:${(y - hPct).toFixed(2)}%;width:${w}%;aspect-ratio:${cw}/${ch};z-index:${z ?? Math.round(y)}"${label ? ` title="${esc(label)}"` : ''}>${art}${ghost && label ? `<span class="cs-label">${esc(label.replace(': not built', ''))}</span>` : ''}</div>`;
+}
+
+function wonderSVG(vp) {
+  if (vp === 1) return '<svg viewBox="0 0 40 60" aria-hidden="true"><path d="M16 58V12l4-8 4 8v46z" fill="var(--stone)"/><path d="M20 4l4 8h-8z" fill="var(--gilt)"/><rect x="10" y="54" width="20" height="6" rx="1" fill="var(--stone-dark)"/></svg>';
+  if (vp === 2) return '<svg viewBox="0 0 60 60" aria-hidden="true"><rect x="8" y="52" width="44" height="8" rx="1" fill="var(--stone-dark)"/><rect x="12" y="26" width="5" height="26" fill="var(--stone)"/><rect x="27.5" y="26" width="5" height="26" fill="var(--stone)"/><rect x="43" y="26" width="5" height="26" fill="var(--stone)"/><path d="M6 26h48L30 8z" fill="var(--gilt)"/></svg>';
+  return '<svg viewBox="0 0 70 60" aria-hidden="true"><path d="M2 60h66L56 46H14z" fill="var(--stone-dark)"/><path d="M14 46h42L46 32H24z" fill="var(--stone)"/><path d="M24 32h22L38 18h-6z" fill="var(--stone-dark)"/><path d="M32 18h6l-3-10z" fill="var(--gilt)"/></svg>';
+}
+
+function renderCity() {
+  loadCityArt();
+  const humans = state.order.filter(pid => !state.players[pid].isBot);
+  if (!humans.includes(ui.cityPid)) ui.cityPid = me.pid;
+  const p = state.players[ui.cityPid];
+  const eco = p.eco;
+  const mine = ui.cityPid === me.pid;
+
+  $('#cityTitle').innerHTML = mine ? 'Your city' : `<span style="color:${colorOf(p.pid)}">${esc(p.name)}</span>'s city`;
+  $('#cityPicker').innerHTML = humans.length > 1 ? humans.map(pid => `<button class="city-chip ${pid === ui.cityPid ? 'on' : ''}" data-city="${pid}" style="--pc:${colorOf(pid)}"><span class="swatch"></span>${pid === me.pid ? 'You' : esc(state.players[pid].name)}</button>`).join('') : '';
+
+  const built = new Set();
+  R.TRACKS.forEach(t => t.tiers.forEach((b, k) => { if (k < eco.buildings[t.id]) built.add(b.id); }));
+  const prev = ui.cityBuilt[ui.cityPid];
+  const fresh = id => prev && !prev.has(id);
+  const parts = [];
+
+  // Buildings on their lots; unbuilt ones are faded outlines.
+  for (const t of R.TRACKS) for (const b of t.tiers) {
+    const lot = LOTS[b.id];
+    const has = built.has(b.id);
+    parts.push(cityImg(lot.img || b.img, lot.x, lot.y, lot.w, {
+      ghost: !has,
+      label: has ? `${b.name} (×${b.mult} ${RES[t.id].name.toLowerCase()})` : `${b.name}: not built`,
+      cls: (lot.back ? 'back ' : '') + (has && fresh(b.id) ? 'pop' : ''),
+      z: lot.back ? 1 : undefined,
+    }));
+  }
+  parts.push(cityImg('lake', 72, 64, 26, { z: 2, cls: 'scenery' }));
+
+  // Farm fields and houses grow with the economy.
+  const fields = Math.min(FIELD_SLOTS.length, eco.farm);
+  FIELD_SLOTS.slice(0, fields).forEach(s => parts.push(cityImg('farm2', s.x, s.y, 9.4)));
+  const people = eco.farm + eco.merchant + eco.artist + eco.scholar;
+  const houses = Math.min(HOUSE_SLOTS.length, 1 + Math.floor(people / 4));
+  HOUSE_SLOTS.slice(0, houses).forEach(s => parts.push(cityImg('house', s.x, s.y, 3.4)));
+  const stalls = Math.min(4, eco.merchant);
+  for (let k = 0; k < stalls; k++) parts.push(cityImg('merchant', 42.5 + k * 3.5, 52, 3.2));
+
+  // Wonders on the hill.
+  R.WONDERS.forEach((w, k) => {
+    const has = eco.wonders[w.id];
+    const x = 29 + k * 4.9 - (w.vp === 3 ? 1 : w.vp === 2 ? 0.6 : 0);
+    parts.push(`<div class="wonder-mon ${has ? '' : 'ghost'} ${has && prev && !(ui.cityWonders[ui.cityPid] || new Set()).has(w.id) ? 'pop' : ''}" style="left:${x}%;width:${w.vp === 3 ? 6 : w.vp === 2 ? 5 : 3.4}%" title="${esc(w.name)}${has ? ` (+${w.vp} VP per turn)` : ': not built'}">${wonderSVG(w.vp)}</div>`);
+  });
+
+  // District names.
+  const district = (txt, x, y) => parts.push(`<span class="district" style="left:${x}%;top:${y}%">${txt}</span>`);
+  district('Temple hill', 3, 23);
+  district('Wonders', 30, 2);
+  district('Market', 41, 25);
+  district('Homes', 34, 47);
+  district('Farmland', 2, 64);
+  district('Harbor', 61, 30);
+  district('Learning', 57, 78);
+
+  $('#cityScene').innerHTML = `<div class="sky"></div><div class="hill"></div>${parts.join('')}`;
+  $('#cityScene').style.setProperty('--pc', colorOf(p.pid));
+
+  ui.cityBuilt[ui.cityPid] = built;
+  ui.cityWonders[ui.cityPid] = new Set(Object.keys(eco.wonders));
+
+  const nb = built.size, nw = Object.keys(eco.wonders).length;
+  $('#cityStats').innerHTML = [
+    ['citizen', 'Farms', eco.farm],
+    ['gold', 'Merchants', eco.merchant],
+    ['culture', 'Artists', eco.artist],
+    ['research', 'Scholars', eco.scholar],
+  ].map(([k, label, n]) => `<div class="cstat"><span class="${RES[k].cls}">${ICON[k]}</span><b>${fmt(n)}</b><span>${label}</span></div>`).join('') +
+    `<div class="cstat"><span class="r-citizen">${ICON.farm}</span><b>${nb}/12</b><span>Buildings</span></div>` +
+    `<div class="cstat"><span class="r-vp">${ICON.vp}</span><b>${nw}/9</b><span>Wonders</span></div>`;
+}
+
+function setView(v) {
+  ui.view = v;
+  document.querySelectorAll('.view-switch [data-view]').forEach(b => {
+    b.classList.toggle('on', b.dataset.view === v);
+    b.setAttribute('aria-selected', b.dataset.view === v);
+  });
+  $('#boardView').hidden = v !== 'board';
+  $('#cityView').hidden = v !== 'city';
+  if (v === 'city') { ui.cityAttn = false; renderCity(); }
+  document.querySelector('[data-view="city"]').classList.toggle('attn', !!ui.cityAttn);
+}
+document.querySelector('.view-switch').addEventListener('click', e => {
+  const b = e.target.closest('[data-view]');
+  if (b) { play('click'); setView(b.dataset.view); }
+});
+$('#cityPicker').addEventListener('click', e => {
+  const b = e.target.closest('[data-city]');
+  if (b) { ui.cityPid = b.dataset.city; play('click'); renderCity(); }
+});
 
 // ---------- end-of-turn feedback ----------
 function afterResolve() {

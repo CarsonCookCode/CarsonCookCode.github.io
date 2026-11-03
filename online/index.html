@@ -85,6 +85,19 @@
       </section>
 
       <section class="center">
+        <div class="view-switch" role="tablist" aria-label="View">
+          <button data-view="board" role="tab">Battlefield</button>
+          <button data-view="city" role="tab">City</button>
+        </div>
+        <div id="cityView" class="city-view" hidden>
+          <div class="city-head">
+            <h2 id="cityTitle"></h2>
+            <div id="cityPicker" class="city-picker"></div>
+          </div>
+          <div id="cityScene" class="city"></div>
+          <div id="cityStats" class="city-stats"></div>
+        </div>
+        <div id="boardView" class="board-view">
         <div class="board-frame">
           <div class="col-labels"><span></span><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span></div>
           <div class="board-row">
@@ -98,6 +111,7 @@
           <span class="muted">Pick a unit, then click a glowing square. Right-click or Esc to cancel.</span>
         </div>
         <div id="army" class="army"></div>
+        </div>
       </section>
 
       <aside class="panel right">

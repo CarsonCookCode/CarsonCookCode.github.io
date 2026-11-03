@@ -162,7 +162,9 @@ export function newPlayerEconomy() {
     farm: 1, farmCost: 3, merchant: 0, artist: 0, scholar: 0,
     mult: { citizen: 1, gold: 1, culture: 1, research: 1 },
     buildings: { citizen: 0, gold: 0, culture: 0, research: 0 },
-    techDone: {}, techProg: {}, activeTech: null,
+    techDone: {}, techProg: {},
+    queue: [],  // research queue; queue[0] is being researched
+    bank: 0,    // research points saved while nothing is queued
     wonders: {}, vp: 0, vppt: 0,
   };
 }
@@ -223,6 +225,43 @@ export function income(eco) {
 export function techAvailable(eco, id) {
   const t = TECH[id];
   return !eco.techDone[id] && t.req.every(r => eco.techDone[r]);
+}
+
+// Techs that must be queued (in order) to reach `id`, including `id` itself.
+export function pathTo(eco, id, acc = []) {
+  if (eco.techDone[id] || eco.queue.includes(id) || acc.includes(id)) return acc;
+  for (const r of TECH[id].req) pathTo(eco, r, acc);
+  acc.push(id);
+  return acc;
+}
+
+// Remove queued techs whose prerequisites are neither researched nor earlier in the queue.
+function pruneQueue(eco) {
+  const kept = [];
+  for (const id of eco.queue) {
+    if (TECH[id].req.every(r => eco.techDone[r] || kept.includes(r))) kept.push(id);
+  }
+  eco.queue = kept;
+}
+
+// Turns until each queued tech finishes, assuming scholars stay the same.
+export function queueEta(eco) {
+  const rate = eco.scholar * eco.mult.research;
+  let pts = eco.research + eco.bank;
+  let turn = 1;
+  const out = {};
+  for (const id of eco.queue) {
+    let need = TECH[id].cost - (eco.techProg[id] || 0);
+    while (need > pts) {
+      if (rate <= 0) return out;
+      need -= pts;
+      pts = rate;
+      turn++;
+    }
+    pts -= need;
+    out[id] = turn;
+  }
+  return out;
 }
 
 export function unitUnlocked(eco, unitId) {
@@ -315,11 +354,23 @@ export function applyAction(state, pid, a) {
     }
 
     case 'research': {
-      if (a.tech === null) { eco.activeTech = null; return null; }
+      // Add a tech (and any missing prerequisites) to the end of the queue.
       if (!TECH[a.tech]) return 'Unknown technology.';
       if (eco.techDone[a.tech]) return 'You already know that.';
+      if (eco.queue.includes(a.tech)) return null;
+      eco.queue.push(...pathTo(eco, a.tech));
+      return null;
+    }
+    case 'unqueue': {
+      // Remove a tech from the queue, plus anything queued that depended on it.
+      eco.queue = eco.queue.filter(id => id !== a.tech);
+      pruneQueue(eco);
+      return null;
+    }
+    case 'researchFirst': {
+      if (!eco.queue.includes(a.tech)) return 'That tech is not in your queue.';
       if (!techAvailable(eco, a.tech)) return `Research ${TECH[a.tech].req.filter(r => !eco.techDone[r]).map(r => TECH[r].name).join(' and ')} first.`;
-      eco.activeTech = a.tech;
+      eco.queue = [a.tech, ...eco.queue.filter(id => id !== a.tech)];
       return null;
     }
 
@@ -374,21 +425,32 @@ export function allReady(state) {
 export function resolveTurn(state) {
   const events = [];
 
-  // 1. Research progress, then income and victory points (endTurnCiv + endTurnResources).
+  // 1. Research, then income and victory points (endTurnCiv + endTurnResources).
+  //    Research works through the queue; leftover points carry into the next
+  //    tech, and points with nothing queued are banked for later.
   for (const pid of state.order) {
     const p = state.players[pid];
     if (p.isBot) continue;
     const eco = p.eco;
-    if (eco.activeTech) {
-      const t = TECH[eco.activeTech];
-      eco.techProg[t.id] = (eco.techProg[t.id] || 0) + eco.research;
-      if (eco.techProg[t.id] >= t.cost) {
+    let pts = eco.research + eco.bank;
+    eco.bank = 0;
+    while (pts > 0 && eco.queue.length) {
+      const t = TECH[eco.queue[0]];
+      const prog = eco.techProg[t.id] || 0;
+      const needed = t.cost - prog;
+      if (pts >= needed) {
+        eco.techProg[t.id] = t.cost;
         eco.techDone[t.id] = true;
-        eco.activeTech = null;
+        eco.queue.shift();
+        pts -= needed;
         log(state, `${p.name}'s scholars discovered ${t.name}.`, pid);
         events.push({ type: 'tech', pid, tech: t.id });
+      } else {
+        eco.techProg[t.id] = prog + pts;
+        pts = 0;
       }
     }
+    eco.bank = pts;
     const inc = income(eco);
     eco.citizen += inc.citizen;
     eco.gold += inc.gold;
