@@ -273,7 +273,7 @@ function startJoining(code) {
     onConnected() { connected = true; },
     onMessage(msg) {
       if (!msg) return;
-      if (msg.t === 'state') onState(msg.state);
+      if (msg.t === 'state') onState(normalizeState(msg.state));
       else if (msg.t === 'error') { toast(msg.msg, 'error'); play('error'); }
       else if (msg.t === 'reject') goHome(msg.msg);
     },
@@ -298,6 +298,23 @@ function dispatch(action) {
 }
 
 // ---------- state updates ----------
+// A host whose page loaded an older version of the game sends older-shaped state.
+// Fill in what newer versions expect so joining players can still play.
+function normalizeState(s) {
+  if (!s || typeof s !== 'object') return s;
+  if (!Array.isArray(s.lastEvents)) s.lastEvents = [];
+  if (!Array.isArray(s.log)) s.log = [];
+  for (const pid of s.order || []) {
+    const e = s.players && s.players[pid] && s.players[pid].eco;
+    if (!e) continue;
+    if (!Array.isArray(e.queue)) e.queue = e.activeTech ? [e.activeTech] : [];
+    if (typeof e.bank !== 'number') e.bank = 0;
+    e.techProg = e.techProg || {};
+    e.techDone = e.techDone || {};
+    e.wonders = e.wonders || {};
+  }
+  return s;
+}
 function onState(s) {
   if (s.rev !== undefined && s.rev === ui.lastRev && role !== 'host') return;
   ui.lastRev = s.rev;
